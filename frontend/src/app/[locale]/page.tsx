@@ -8,7 +8,7 @@ const Index = () => {
   const router = useRouter();
 
   useEffect(() => {
-    router.push('/example');
+    router.push('/luftkvalitet');
   }, [router]);
 
   return <LoaderFullScreen />;

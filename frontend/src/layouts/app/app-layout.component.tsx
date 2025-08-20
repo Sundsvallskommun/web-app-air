@@ -39,15 +39,16 @@ interface ClientApplicationProps {
 const AppLayout = ({ children }: ClientApplicationProps) => {
   const colorScheme = useLocalStorage(useShallow((state) => state.colorScheme));
   const getAirQuality = useAirStore((state) => state.getAirQuality);
-  // const [mounted, setMounted] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     getAirQuality();
-  }, [getAirQuality]);
+    setMounted(true);
+  }, [getAirQuality, setMounted]);
 
-  // if (!mounted) {
-  //   return <LoaderFullScreen />;
-  // }
+  if (!mounted) {
+    return <LoaderFullScreen />;
+  }
 
   return <GuiProvider colorScheme={colorScheme}>{children}</GuiProvider>;
 };
