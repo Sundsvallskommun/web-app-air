@@ -3,8 +3,8 @@
     "title": "Inloggningssida",
     "description": "Beskrivning utav inloggningssidan"
   },
-  "/example": {
-    "title": "Exempelsida",
+  "/luftkvalitet": {
+    "title": "Luftkvalitet",
     "description": "Beskrivning utav exempelsidan"
   }
 }
