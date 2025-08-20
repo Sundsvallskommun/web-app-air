@@ -8,8 +8,8 @@ import updateLocale from 'dayjs/plugin/updateLocale';
 import { GuiProvider } from '@sk-web-gui/react';
 import { useLocalStorage } from '@utils/use-localstorage.hook';
 import { useShallow } from 'zustand/react/shallow';
-import { useUserStore } from '@services/user-service/user-service';
 import LoaderFullScreen from '@components/loader/loader-fullscreen';
+import { useAirStore } from '@services/air-service/air-service';
 
 dayjs.extend(utc);
 dayjs.locale('sv');
@@ -38,17 +38,16 @@ interface ClientApplicationProps {
 
 const AppLayout = ({ children }: ClientApplicationProps) => {
   const colorScheme = useLocalStorage(useShallow((state) => state.colorScheme));
-  const getMe = useUserStore((state) => state.getMe);
-  const [mounted, setMounted] = useState(false);
+  const getAirQuality = useAirStore((state) => state.getAirQuality);
+  // const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    getMe();
-    setMounted(true);
-  }, [getMe, setMounted]);
+    getAirQuality();
+  }, [getAirQuality]);
 
-  if (!mounted) {
-    return <LoaderFullScreen />;
-  }
+  // if (!mounted) {
+  //   return <LoaderFullScreen />;
+  // }
 
   return <GuiProvider colorScheme={colorScheme}>{children}</GuiProvider>;
 };

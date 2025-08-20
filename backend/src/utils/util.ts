@@ -1,4 +1,4 @@
-import { API_BASE_URL, BASE_URL_PREFIX } from '@config';
+import { API_BASE_URL, API_EXTERNAL_BASE_URL, BASE_URL_PREFIX } from '@config';
 /**
  * @method isEmpty
  * @param {String | Number | Object} value
@@ -26,6 +26,11 @@ export const localApi = (...parts: string[]): string => {
 
 export const apiURL = (...parts: string[]): string => {
   const urlParts = [API_BASE_URL, ...parts];
+  return urlParts.map(pathPart => pathPart.replace(/(^\/|\/$)/g, '')).join('/');
+};
+
+export const apiExternalURL = (...parts: string[]): string => {
+  const urlParts = [API_EXTERNAL_BASE_URL, ...parts];
   return urlParts.map(pathPart => pathPart.replace(/(^\/|\/$)/g, '')).join('/');
 };
 
