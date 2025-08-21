@@ -54,6 +54,9 @@ export const useAirStore = create<State & Actions>()(
         if (!res.error && res.data) {
           airQuality = res.data.data;
           set(() => ({ airQuality: airQuality, airQualityIsLoading: false }));
+        } else {
+          set(() => ({ airQualityIsLoading: false }));
+          return { error: res.error, message: res.message };
         }
         return { data: airQuality };
       },

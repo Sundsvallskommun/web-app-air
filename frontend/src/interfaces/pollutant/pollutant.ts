@@ -1,13 +1,40 @@
-export enum PollutantType {
-  AtmosphericPressure = 'Lufttryck',
-  Temperature = 'Temperatur (C)',
-  RelativeHumidity = 'Relativ Luftfuktighet (%)',
+export enum Pollutant {
+  AtmosphericPressure = 'AtmosphericPressure',
+  Temperature = 'Temperature',
+  RelativeHumidity = 'RelativeHumidity',
   PM1 = 'PM1',
   PM4 = 'PM4',
   PM10 = 'PM10',
   PM25 = 'PM25',
-  TotalSuspendedParticulate = 'upphängda partiklar',
+  TotalSuspendedParticulate = 'TotalSuspendedParticulate',
   NO = 'NO',
   NO2 = 'NO2',
   NOx = 'NOx',
 }
+export const PollutantType = {
+  AtmosphericPressure: 'Lufttryck',
+  Temperature: 'Temperatur (C)',
+  RelativeHumidity: 'Relativ Luftfuktighet (%)',
+  PM1: 'PM1',
+  PM4: 'PM4',
+  PM10: 'PM10',
+  PM25: 'PM25',
+  TotalSuspendedParticulate: 'Upphängda partiklar',
+  NO: 'NO',
+  NO2: 'NO2',
+  NOx: 'NOx',
+};
+
+export const PollutantColor = {
+  AtmosphericPressure: 'purple',
+  Temperature: 'lightgreen',
+  RelativeHumidity: 'darkblue',
+  PM1: 'lightblue',
+  PM4: 'cyan',
+  PM10: 'grey',
+  PM25: 'black',
+  TotalSuspendedParticulate: 'red',
+  NO: 'orange',
+  NO2: 'darkgreen',
+  NOx: 'pink',
+};

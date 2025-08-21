@@ -1,75 +1,156 @@
 import { useAirStore } from '@services/air-service/air-service';
 import { Spinner } from '@sk-web-gui/react';
 import { useEffect, useState } from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Legend, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Legend, ResponsiveContainer, Tooltip } from 'recharts';
 import dayjs from 'dayjs';
-import { PollutantType } from '@interfaces/pollutant/pollutant';
-
-interface AirQualityGraph {
-  [key: string]: string | number | [] | object | null | undefined;
-}
+import { PollutantColor, PollutantType } from '@interfaces/pollutant/pollutant';
+import { Pollutant, Value } from '@interfaces/airquality/airquality';
 
 export default function AirQualityComponent() {
   const airQuality = useAirStore((state) => state.airQuality);
   const airQualityIsLoading = useAirStore((state) => state.airQualityIsLoading);
-  const [graphData, setGraphData] = useState<AirQualityGraph[]>();
+  const [graphData, setGraphData] = useState<Pollutant[]>();
 
   useEffect(() => {
     if (airQuality && airQuality.pollutants && airQuality.pollutants.length > 0) {
-      const airArray: AirQualityGraph[] = [];
+      const airArray: Pollutant[] = [];
+      const dateGroups: {
+        [key: string]: {
+          value: number;
+          observedAt: string;
+          name?: string;
+        }[];
+      }[] = [];
+      const cleaned: {
+        value: number;
+        observedAt: string;
+        name?: string;
+      }[] = [];
+      console.log(dateGroups);
       airQuality.pollutants.forEach((pollutant) => {
+        const pollutantValues: Value[] = [];
+
+        const dublicateValues: Value[] = [];
+
         pollutant.values.forEach((v) => {
-          airArray.push({
-            name: pollutant.name,
-            observedAt: dayjs(v.observedAt).format('DD/MM/YY'),
-            [pollutant.name]: v.value,
+          dublicateValues.push({
+            value: v.value,
+            observedAt: new Date(v.observedAt).toLocaleDateString(),
           });
         });
+        const groupedByDate = dublicateValues.reduce(
+          (
+            group: {
+              [key: string]: {
+                value: number;
+                observedAt: string;
+                name?: string;
+              }[];
+            },
+            v
+          ) => {
+            const { observedAt } = v;
+
+            // Initialize the group if it doesn't exist
+            if (!group[observedAt]) {
+              group[observedAt] = [];
+            }
+
+            // Add the user to the corresponding age group
+            group[observedAt].push({
+              value: v.value,
+              observedAt: v.observedAt,
+              name: pollutant.name,
+            });
+            return group;
+          },
+          {} as {
+            [key: string]: {
+              value: number;
+              observedAt: string;
+              name?: string;
+            }[];
+          }
+        );
+        const dates: string[] = [];
+
+        pollutant.values.forEach((v) => {
+          const date = new Date(v.observedAt).toLocaleDateString();
+          if (!dates.includes(date)) {
+            dates.push(date);
+          }
+        });
+
+        dates.forEach((d) => {
+          if (groupedByDate[d]) {
+            const averageValue =
+              groupedByDate[d].reduce((partialSum, a) => partialSum + a.value, 0) / groupedByDate[d].length;
+            cleaned.push({
+              value: averageValue,
+              observedAt: groupedByDate[d][0].observedAt,
+              name: groupedByDate[d][0].name,
+            });
+          }
+        });
+        cleaned.forEach((c) => {
+          if (c.name === pollutant.name) {
+            pollutantValues.push({
+              value: c.value,
+              observedAt: c.observedAt,
+            });
+          }
+        });
+        // Sort pollutantValues by observedAt date
+        pollutantValues.sort((a, b) => new Date(a.observedAt).getTime() - new Date(b.observedAt).getTime());
+        console.log(pollutantValues);
+        airArray.push({
+          name: pollutant.name,
+          values: pollutantValues,
+        });
       });
+
       setGraphData(airArray);
     }
   }, [airQuality]);
 
-  console.log(airQuality);
-  return (
-    <section>
-      <div className="text-content">
-        <p>Information om luftkvalitet blablabla</p>
-      </div>
-      <div>
+  console.log(graphData);
+  return airQuality ?
+      <section style={{ maxWidth: '100%', height: '80vh' }} className="flex flex-col items-center justify-center">
         {airQualityIsLoading ?
           <Spinner size={4} />
         : graphData && (
-            <LineChart width={1020} height={300} data={graphData}>
-              <CartesianGrid />
+            <ResponsiveContainer width="100%" height="100%" className="my-56">
+              <LineChart
+                height={800}
+                data={graphData}
+                margin={{
+                  top: 20,
+                  right: 30,
+                  left: 20,
+                  bottom: 10,
+                }}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
 
-              <Line
-                dataKey={PollutantType.AtmosphericPressure}
-                stroke="purple"
-                name={PollutantType.AtmosphericPressure}
-              />
-              <Line dataKey={PollutantType.RelativeHumidity} stroke="green" name={PollutantType.RelativeHumidity} />
-              <Line dataKey={PollutantType.Temperature} stroke="pink" name={PollutantType.Temperature} />
-              <Line
-                dataKey={PollutantType.TotalSuspendedParticulate}
-                stroke="grey"
-                name={PollutantType.TotalSuspendedParticulate}
-              />
-              <Line dataKey={PollutantType.PM1} stroke="lightblue" name={PollutantType.PM1} />
-              <Line dataKey={PollutantType.PM4} stroke="yellow" name={PollutantType.PM4} />
-              <Line dataKey={PollutantType.PM10} stroke="darkblue" name={PollutantType.PM10} />
-              <Line dataKey={PollutantType.PM25} stroke="cyan" name={PollutantType.PM25} />
-              <Line dataKey={PollutantType.NO} stroke="red" name={PollutantType.NO} />
-              <Line dataKey={PollutantType.NO2} stroke="orange" name={PollutantType.NO2} />
-              <Line dataKey={PollutantType.NOx} stroke="black" name={PollutantType.NOx} />
-
-              <XAxis dataKey="observedAt" />
-              <YAxis />
-              <Legend />
-            </LineChart>
+                <XAxis dataKey="observedAt" allowDuplicatedCategory={false} />
+                <YAxis dataKey="value" />
+                <Tooltip />
+                <Legend />
+                {graphData.map((pollutant) => {
+                  return (
+                    <Line
+                      dataKey="value"
+                      stroke={PollutantColor[pollutant.name as keyof typeof PollutantColor]}
+                      data={pollutant.values}
+                      name={PollutantType[pollutant.name as keyof typeof PollutantType]}
+                      key={pollutant.name}
+                    />
+                  );
+                })}
+              </LineChart>
+            </ResponsiveContainer>
           )
         }
-      </div>
-    </section>
-  );
+      </section>
+    : <></>;
 }

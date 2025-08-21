@@ -10,7 +10,11 @@ export class AirController {
   @Get('/airquality')
   @OpenAPI({ summary: 'get quality report of air in Sundsvall' })
   async getAirQualityReports(): Promise<{ data; message: string }> {
-    const url = `/opendata/1.0/airqualities/urn%3Angsi-ld%3AAirQualityObserved%3A888100?from=2024-08-12T07%3A00%3A00Z&to=2025-08-11T07%3A00%3A00Z`;
+    const currentDate = `${new Date().getFullYear()}-${new Date().getMonth() + 1 > 9 ? new Date().getMonth() + 1 : '0' + (new Date().getMonth() + 1)}-${new Date().getDate() > 9 ? new Date().getDate() : '0' + new Date().getDate()}`;
+
+    const lastYearsDate = `${new Date().getFullYear() - 1}-${new Date().getMonth() + 1 > 9 ? new Date().getMonth() + 1 : '0' + (new Date().getMonth() + 1)}-${new Date().getDate() > 9 ? new Date().getDate() : '0' + new Date().getDate()}`;
+
+    const url = `/opendata/1.0/airqualities/urn%3Angsi-ld%3AAirQualityObserved%3A888100?from=${lastYearsDate}T07%3A00%3A00Z&to=${currentDate}T07%3A00%3A00Z`;
     const res = await this.apiService.get({ url }).catch(e => {
       logger.error('Error when fetching air quality');
       throw e;
