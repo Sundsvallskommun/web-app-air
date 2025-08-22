@@ -10,7 +10,7 @@ interface AirQualityGraphProps {
 export const AirQualityGraph: React.FC<AirQualityGraphProps> = ({ graphData }) => {
   return (
     <div style={{ width: '100%', height: '75vh' }}>
-      <ResponsiveContainer width="100%" height="100%" className="my-56">
+      <ResponsiveContainer width="100%" height="100%" className="mb-56 mt-24">
         <LineChart
           height={800}
           data={graphData}

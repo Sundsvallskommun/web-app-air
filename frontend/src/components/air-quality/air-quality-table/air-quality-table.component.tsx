@@ -14,7 +14,7 @@ export const AirQualityTable: React.FC<AirQualityTableProps> = ({ tableData }) =
     if (tableData && tableData.length > 0) {
       tableData.forEach((item) => {
         dataArray.push({
-          name: PollutantType[item.name as keyof typeof PollutantType],
+          name: `${PollutantType[item.name as keyof typeof PollutantType]} ${item.observedAt}`,
           value: item.value,
           observedAt: item.observedAt,
         });
@@ -23,10 +23,11 @@ export const AirQualityTable: React.FC<AirQualityTableProps> = ({ tableData }) =
     }
   }, [tableData]);
   const headerLabels = [
-    { label: 'Observerad vid', property: 'observedAt' },
     { label: 'Förorenande ämne', property: 'name' },
     { label: 'Värde', property: 'value' },
   ];
 
-  return data && <AutoTable pageSize={14} autodata={data} dense autoheaders={headerLabels} background />;
+  return (
+    data && <AutoTable className="mt-24" pageSize={14} autodata={data} dense autoheaders={headerLabels} background />
+  );
 };

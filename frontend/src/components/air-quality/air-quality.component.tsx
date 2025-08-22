@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import { Pollutant, Value } from '@interfaces/airquality/airquality';
 import { AirQualityGraph } from './air-quality-graph/air-quality-graph.component';
 import { AirQualityTable } from './air-quality-table/air-quality-table.component';
+import LucideIcon from '@sk-web-gui/lucide-icon';
+import { AirQualityFilter } from './air-quality-filter/air-quality-filter.component';
 
 export interface IAirQualityTable {
   name: string;
@@ -18,6 +20,7 @@ export default function AirQualityComponent() {
   const [tableData, setTableData] = useState<IAirQualityTable[]>([]);
   const [showGraph, setShowGraph] = useState<boolean>(true);
   const [showTable, setShowTable] = useState<boolean>(false);
+  const [current, setCurrent] = useState<number>(0);
 
   useEffect(() => {
     if (airQuality && airQuality.pollutants && airQuality.pollutants.length > 0) {
@@ -121,15 +124,12 @@ export default function AirQualityComponent() {
           <Spinner size={4} />
         : graphData && (
             <div className="w-full">
-              <MenuBar>
+              <MenuBar showBackground current={current}>
                 <MenuBar.Item>
                   <Button
-                    disabled={showGraph}
+                    leftIcon={<LucideIcon name="chart-line" />}
                     onClick={() => {
-                      if (!showGraph) {
-                        setShowGraph(true);
-                        setShowTable(false);
-                      }
+                      setCurrent(0);
                     }}
                   >
                     Graf
@@ -137,20 +137,18 @@ export default function AirQualityComponent() {
                 </MenuBar.Item>
                 <MenuBar.Item>
                   <Button
-                    disabled={showTable}
+                    leftIcon={<LucideIcon name="table" />}
                     onClick={() => {
-                      if (!showTable) {
-                        setShowTable(true);
-                        setShowGraph(false);
-                      }
+                      setCurrent(1);
                     }}
                   >
                     Tabell
                   </Button>
                 </MenuBar.Item>
               </MenuBar>
-              {showGraph && <AirQualityGraph graphData={graphData} />}
-              {showTable && <AirQualityTable tableData={tableData} />}
+              <AirQualityFilter />
+              {current === 0 && <AirQualityGraph graphData={graphData} />}
+              {current === 1 && <AirQualityTable tableData={tableData} />}
             </div>
           )
         }

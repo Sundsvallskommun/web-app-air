@@ -40,11 +40,12 @@ interface ClientApplicationProps {
 const AppLayout = ({ children }: ClientApplicationProps) => {
   const colorScheme = useLocalStorage(useShallow((state) => state.colorScheme));
   const getAirQuality = useAirStore((state) => state.getAirQuality);
+  const filter = useAirStore((state) => state.filter);
   const [mounted, setMounted] = useState(false);
   const toastMessage = useSnackbar();
 
   useEffect(() => {
-    getAirQuality().then((res) => {
+    getAirQuality(filter).then((res) => {
       if (res.error) {
         toastMessage({
           status: 'error',
