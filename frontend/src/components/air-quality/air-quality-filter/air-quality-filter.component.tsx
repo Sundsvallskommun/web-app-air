@@ -1,5 +1,5 @@
 import { useAirStore } from '@services/air-service/air-service';
-import { Button, Label, MenuBar } from '@sk-web-gui/react';
+import { Button } from '@sk-web-gui/react';
 import { useState } from 'react';
 
 export const AirQualityFilter = () => {
@@ -32,15 +32,16 @@ export const AirQualityFilter = () => {
   console.log(currentFilter);
 
   return (
-    <div>
-      <label className="sk-form-labl">Visa Luftkvalitet från senaste</label>
-      <MenuBar showBackground className="w-fit p-8">
-        {filters.map((item) => {
-          return (
-            <MenuBar.Item key={item.id} current={currentFilter === item.id}>
+    <div className="w-full flex justify-end">
+      <div>
+        <label className="sk-form-labl font-semibold mr-12">Visa Luftkvalitet från senaste:</label>
+        <Button.Group>
+          {filters.map((item, idx) => {
+            return (
               <Button
-                inverted
-                variant={currentFilter === item.id ? 'primary' : 'secondary'}
+                key={idx}
+                inverted={currentFilter === item.id}
+                variant={currentFilter === item.id ? 'primary' : 'tertiary'}
                 onClick={() => {
                   setCurrentFilter(item.id);
                   setFilter(item.value);
@@ -48,10 +49,10 @@ export const AirQualityFilter = () => {
               >
                 {item.label}
               </Button>
-            </MenuBar.Item>
-          );
-        })}
-      </MenuBar>
+            );
+          })}
+        </Button.Group>
+      </div>
     </div>
   );
 };

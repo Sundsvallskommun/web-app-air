@@ -1,30 +1,50 @@
 import { useEffect, useState } from 'react';
-import { IAirQualityTable } from '../air-quality.component';
 import { AutoTable } from '@sk-web-gui/react';
-import { PollutantType } from '@interfaces/pollutant/pollutant';
 
 interface AirQualityTableProps {
-  tableData: IAirQualityTable[];
+  tableData: {
+    value: number;
+    observedAt: string;
+    name: string;
+  }[];
 }
 
 export const AirQualityTable: React.FC<AirQualityTableProps> = ({ tableData }) => {
-  const [data, setData] = useState<IAirQualityTable[]>();
+  const [data, setData] = useState<
+    {
+      observedAt: string;
+      value: string;
+    }[]
+  >();
+
+  console.log('table', tableData);
+
   useEffect(() => {
-    const dataArray: IAirQualityTable[] = [];
-    if (tableData && tableData.length > 0) {
-      tableData.forEach((item) => {
+    const dataArray: {
+      observedAt: string;
+      value: string;
+    }[] = [];
+    if (tableData) {
+      tableData.forEach((t) => {
         dataArray.push({
-          name: `${PollutantType[item.name as keyof typeof PollutantType]} ${item.observedAt}`,
-          value: item.value,
-          observedAt: item.observedAt,
+          observedAt: t.observedAt,
+          value: `${t.name} ${t.value}`,
         });
       });
-      setData(dataArray);
     }
+    setData(dataArray);
   }, [tableData]);
+
   const headerLabels = [
-    { label: 'Förorenande ämne', property: 'name' },
-    { label: 'Värde', property: 'value' },
+    {
+      label: 'Observerat vid',
+      property: 'observedAt',
+      isColumnSortable: false,
+    },
+    {
+      label: 'Mätvärde',
+      property: 'value',
+    },
   ];
 
   return (
