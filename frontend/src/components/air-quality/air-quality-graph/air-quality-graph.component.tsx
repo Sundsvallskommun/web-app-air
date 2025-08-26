@@ -24,7 +24,7 @@ export const AirQualityGraph: React.FC<AirQualityGraphProps> = ({ graphData }) =
           <CartesianGrid strokeDasharray="3 3" />
 
           <XAxis dataKey="observedAt" allowDuplicatedCategory={false} />
-          <YAxis dataKey="value" domain={[-1500, 1500]} />
+          <YAxis dataKey="value" domain={[-150, 1500]} />
           <Tooltip active />
           <Legend />
           {graphData.map((pollutant) => {

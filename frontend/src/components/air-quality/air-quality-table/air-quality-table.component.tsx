@@ -11,10 +11,13 @@ export const AirQualityTable: React.FC<AirQualityTableProps> = ({ tableData, pol
   console.log('table', tableData);
 
   const PollutansLabels = pollutantLabels.map((p) => {
-    return { label: p, property: p };
+    return { label: p, property: p, isColumnSortable: false };
   });
 
-  const headerLabels = [{ label: 'Observerad vid', property: 'observedAt' }, ...PollutansLabels];
+  const headerLabels = [
+    { label: 'Observerad vid', property: 'observedAt', isColumnSortable: false },
+    ...PollutansLabels,
+  ];
 
   return (
     tableData && (
