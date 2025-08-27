@@ -7,8 +7,6 @@ const validateEnv = () => {
     SECRET_KEY: str(),
     API_BASE_URL: str(),
     API_EXTERNAL_BASE_URL: str(),
-    CLIENT_KEY: str(),
-    CLIENT_SECRET: str(),
     PORT: port(),
     BASE_URL_PREFIX: str(),
   });

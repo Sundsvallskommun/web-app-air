@@ -28,11 +28,30 @@ export const AirQualityFilter = () => {
     },
   ];
   const [currentFilter, setCurrentFilter] = useState<number>(filters.find((x) => x.value === filter)?.id ?? 0);
+  let filterHeading;
+
+  switch (filter) {
+    case 'day':
+      filterHeading = 'senaste dygnet';
+      break;
+    case 'week':
+      filterHeading = 'senaste veckan';
+      break;
+    case 'month':
+      filterHeading = 'senaste månaden';
+      break;
+    case 'year':
+      filterHeading = 'senaste året';
+      break;
+  }
 
   return (
-    <div className="w-full flex justify-end">
+    <div className="flex flex-wrap gap-16 justify-between items-center container">
       <div>
-        <label className="sk-form-labl font-semibold mr-12">Visa Luftkvalitet från senaste:</label>
+        <h1 className="text-h2-sm">Luftkvalitet {filterHeading}</h1>
+      </div>
+      <div className="flex flex-wrap items-center">
+        <label className="sk-form-labl font-semibold mr-12 flex-none">Visa från senaste:</label>
         <Button.Group>
           {filters.map((item, idx) => {
             return (

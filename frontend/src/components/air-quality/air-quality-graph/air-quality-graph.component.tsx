@@ -9,7 +9,7 @@ interface AirQualityGraphProps {
 
 export const AirQualityGraph: React.FC<AirQualityGraphProps> = ({ graphData }) => {
   return (
-    <div style={{ width: '100%', height: '75vh' }}>
+    <div style={{ width: '100%', height: '80vh' }}>
       <ResponsiveContainer width="100%" height="100%" className="mb-56 mt-24">
         <LineChart
           height={800}
@@ -25,8 +25,8 @@ export const AirQualityGraph: React.FC<AirQualityGraphProps> = ({ graphData }) =
 
           <XAxis dataKey="observedAt" allowDuplicatedCategory={false} />
           <YAxis dataKey="value" domain={[-150, 1500]} />
-          <Tooltip active />
-          <Legend />
+          <Tooltip />
+          <Legend height={100} />
           {graphData.map((pollutant) => {
             return (
               <Line
