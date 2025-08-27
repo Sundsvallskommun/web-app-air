@@ -1,6 +1,5 @@
 import qs from 'qs';
 import axios from 'axios';
-import { CLIENT_KEY, CLIENT_SECRET } from '@config';
 import { HttpException } from '@/exceptions/HttpException';
 import { logger } from '@utils/logger';
 import { API_BASE_URL } from '@config';
@@ -34,14 +33,12 @@ class ApiTokenService {
   }
 
   public async fetchToken(): Promise<string> {
-    const authString = Buffer.from(`${CLIENT_KEY}:${CLIENT_SECRET}`, 'utf-8').toString('base64');
-
     try {
       const { data } = await axios({
         timeout: 30000, // NOTE: milliseconds
         method: 'POST',
         headers: {
-          Authorization: 'Basic ' + authString,
+          Authorization: 'Basic ',
           'Content-Type': 'application/x-www-form-urlencoded',
         },
         data: qs.stringify({

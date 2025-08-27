@@ -31,6 +31,26 @@ export default function AirQualityComponent() {
   const [current, setCurrent] = useState<number>(0);
   const filter = useAirStore((state) => state.filter);
   const weekDays = ['Mån', 'Tis', 'Ons', 'Tors', 'Fre', 'Lör', 'Sön'];
+  const [desktop, setDesktop] = useState(false);
+  useEffect(() => {
+    if (window.screen.width >= 760) {
+      setDesktop(true);
+    } else {
+      setDesktop(false);
+    }
+
+    window.addEventListener(
+      'resize',
+      () => {
+        if (window.screen.width >= 760) {
+          setDesktop(true);
+        } else {
+          setDesktop(false);
+        }
+      },
+      false
+    );
+  }, []);
 
   useEffect(() => {
     if (airQuality && airQuality.pollutants && airQuality.pollutants.length > 0) {
@@ -341,34 +361,48 @@ export default function AirQualityComponent() {
           </div>
         : graphData && (
             <div className="w-full">
-              <div className="w-full flex justify-end">
-                <MenuBar current={current}>
-                  <MenuBar.Item>
-                    <Button
-                      leftIcon={<LucideIcon name="chart-line" />}
-                      onClick={() => {
-                        setCurrent(0);
-                      }}
-                    >
-                      Graf
-                    </Button>
-                  </MenuBar.Item>
-                  <MenuBar.Item>
-                    <Button
-                      leftIcon={<LucideIcon name="table" />}
-                      onClick={() => {
-                        setCurrent(1);
-                      }}
-                    >
-                      Tabell
-                    </Button>
-                  </MenuBar.Item>
-                </MenuBar>
-              </div>
-              <Divider className="my-16" />
-              <AirQualityFilter />
-              {current === 0 && <AirQualityGraph graphData={graphData} />}
-              {current === 1 && <AirQualityTable tableData={tableData} pollutantLabels={pollutantLabels} />}
+              {desktop ?
+                <>
+                  <div className="container flex justify-end">
+                    <MenuBar current={current}>
+                      <MenuBar.Item>
+                        <Button
+                          leftIcon={<LucideIcon name="chart-line" />}
+                          onClick={() => {
+                            setCurrent(0);
+                          }}
+                        >
+                          Graf
+                        </Button>
+                      </MenuBar.Item>
+                      <MenuBar.Item>
+                        <Button
+                          leftIcon={<LucideIcon name="table" />}
+                          onClick={() => {
+                            setCurrent(1);
+                          }}
+                        >
+                          Tabell
+                        </Button>
+                      </MenuBar.Item>
+                    </MenuBar>
+                  </div>
+                  <Divider className="my-16" />
+                  <AirQualityFilter />
+                  {current === 0 && <AirQualityGraph graphData={graphData} />}
+                  {current === 1 && (
+                    <div className="px-16">
+                      <AirQualityTable tableData={tableData} pollutantLabels={pollutantLabels} />
+                    </div>
+                  )}
+                </>
+              : <>
+                  <AirQualityFilter />
+                  <div className="px-16">
+                    <AirQualityTable tableData={tableData} pollutantLabels={pollutantLabels} />
+                  </div>
+                </>
+              }
             </div>
           )
         }
