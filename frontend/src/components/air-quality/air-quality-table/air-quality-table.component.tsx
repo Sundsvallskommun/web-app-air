@@ -8,8 +8,6 @@ interface AirQualityTableProps {
 }
 
 export const AirQualityTable: React.FC<AirQualityTableProps> = ({ tableData, pollutantLabels }) => {
-  console.log('table', tableData);
-
   const PollutansLabels = pollutantLabels.map((p) => {
     return {
       label: p,

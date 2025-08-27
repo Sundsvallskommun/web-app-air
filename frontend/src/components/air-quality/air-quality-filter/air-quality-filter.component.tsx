@@ -29,8 +29,6 @@ export const AirQualityFilter = () => {
   ];
   const [currentFilter, setCurrentFilter] = useState<number>(filters.find((x) => x.value === filter)?.id ?? 0);
 
-  console.log(currentFilter);
-
   return (
     <div className="w-full flex justify-end">
       <div>

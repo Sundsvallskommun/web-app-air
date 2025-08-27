@@ -225,8 +225,6 @@ export default function AirQualityComponent() {
           });
         }
 
-        console.log(groupedByDate);
-
         if (filter === 'year') {
           months.forEach((m) => {
             if (groupedByMonth[m]) {
@@ -287,8 +285,6 @@ export default function AirQualityComponent() {
     }
   }, [airQuality]);
 
-  console.log('table', flatData);
-
   useEffect(() => {
     const allDates: string[] = [];
     const newData: {
@@ -337,11 +333,12 @@ export default function AirQualityComponent() {
     setTableData(newData);
   }, [flatData]);
 
-  console.log(graphData);
   return airQuality ?
       <section className="flex flex-col items-center justify-center">
         {airQualityIsLoading ?
-          <Spinner size={4} />
+          <div className="w-full h-[60vh] py-24 flex justify-center items-center">
+            <Spinner size={4} />
+          </div>
         : graphData && (
             <div className="w-full">
               <div className="w-full flex justify-end">
