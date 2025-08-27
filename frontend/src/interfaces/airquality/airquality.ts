@@ -16,10 +16,10 @@ export interface AirQuality {
 }
 export interface Pollutant {
   name: string;
-  values: [
-    {
-      value: number;
-      observedAt: string;
-    },
-  ];
+  values: Value[];
+}
+
+export interface Value {
+  value: number;
+  observedAt: string;
 }

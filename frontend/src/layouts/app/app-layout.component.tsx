@@ -10,6 +10,7 @@ import { useLocalStorage } from '@utils/use-localstorage.hook';
 import { useShallow } from 'zustand/react/shallow';
 import LoaderFullScreen from '@components/loader/loader-fullscreen';
 import { useAirStore } from '@services/air-service/air-service';
+import { useSnackbar } from '@sk-web-gui/react';
 
 dayjs.extend(utc);
 dayjs.locale('sv');
@@ -39,10 +40,19 @@ interface ClientApplicationProps {
 const AppLayout = ({ children }: ClientApplicationProps) => {
   const colorScheme = useLocalStorage(useShallow((state) => state.colorScheme));
   const getAirQuality = useAirStore((state) => state.getAirQuality);
+  const filter = useAirStore((state) => state.filter);
   const [mounted, setMounted] = useState(false);
+  const toastMessage = useSnackbar();
 
   useEffect(() => {
-    getAirQuality();
+    getAirQuality(filter).then((res) => {
+      if (res.error) {
+        toastMessage({
+          status: 'error',
+          message: 'Det gick inte att hämta luftkvalitet',
+        });
+      }
+    });
     setMounted(true);
   }, [getAirQuality, setMounted]);
 

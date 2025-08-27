@@ -5,9 +5,9 @@ import { __DEV__ } from '@sk-web-gui/react';
 import { ServiceResponse } from '@interfaces/services';
 import { AirQuality, AirQualityData } from '@interfaces/airquality/airquality';
 
-const getAirQuality: () => Promise<ServiceResponse<AirQualityData>> = () => {
+const getAirQuality: (filter: string) => Promise<ServiceResponse<AirQualityData>> = (filter) => {
   return apiService
-    .get<ApiResponse<AirQualityData>>('/airquality')
+    .get<ApiResponse<AirQualityData>>(`/airquality/${filter}`)
     .then((res) => ({ data: res.data.data }))
     .catch((e) => ({
       message: e.response?.data.message,
@@ -18,11 +18,13 @@ const getAirQuality: () => Promise<ServiceResponse<AirQualityData>> = () => {
 interface State {
   airQuality: AirQuality;
   airQualityIsLoading: boolean;
+  filter: string;
 }
 
 interface Actions {
   setAirQuality: (airQuality: AirQuality) => void;
-  getAirQuality: () => Promise<ServiceResponse<AirQualityData>>;
+  setFilter: (filter: string) => Promise<ServiceResponse<AirQualityData>>;
+  getAirQuality: (filter: string) => Promise<ServiceResponse<AirQualityData>>;
   reset: () => void;
 }
 
@@ -40,6 +42,7 @@ const initialState: State = {
     pollutants: [],
   },
   airQualityIsLoading: false,
+  filter: 'week',
 };
 
 export const useAirStore = create<State & Actions>()(
@@ -47,13 +50,27 @@ export const useAirStore = create<State & Actions>()(
     (set, get) => ({
       ...initialState,
       setAirQuality: (airQuality) => set(() => ({ airQuality, airQualityIsLoading: false })),
-      getAirQuality: async () => {
+      setFilter(filter) {
+        set(() => ({ filter }));
+        set(() => ({ airQualityIsLoading: true }));
+        getAirQuality(filter).then((res) => {
+          if (!res.error && res.data) {
+            set(() => ({ airQuality: res.data?.data, airQualityIsLoading: false }));
+          } else {
+            set(() => ({ airQualityIsLoading: false }));
+          }
+        });
+      },
+      getAirQuality: async (filter) => {
         let airQuality = get().airQuality;
         set(() => ({ airQualityIsLoading: true }));
-        const res = await getAirQuality();
+        const res = await getAirQuality(filter);
         if (!res.error && res.data) {
           airQuality = res.data.data;
           set(() => ({ airQuality: airQuality, airQualityIsLoading: false }));
+        } else {
+          set(() => ({ airQualityIsLoading: false }));
+          return { error: res.error, message: res.message };
         }
         return { data: airQuality };
       },
