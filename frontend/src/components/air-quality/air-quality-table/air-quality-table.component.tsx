@@ -30,7 +30,16 @@ export const AirQualityTable: React.FC<AirQualityTableProps> = ({ tableData, pol
 
   return (
     tableData && (
-      <AutoTable className="mt-24" pageSize={14} autodata={tableData} dense autoheaders={headerLabels} background />
+      <AutoTable
+        className="mt-24"
+        pageSize={15}
+        pageSizeEdit="select"
+        pageSizeOptions={[5, 10, 15, 25, 50, 75, 100]}
+        autodata={tableData}
+        dense
+        autoheaders={headerLabels}
+        background
+      />
     )
   );
 };
