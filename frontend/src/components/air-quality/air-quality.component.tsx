@@ -84,8 +84,8 @@ export default function AirQualityComponent() {
           dublicateValues.push({
             value: v.value,
             observedAt:
-              filter === 'week' ?
-                `${dayjs(v.observedAt).format('DD MMM')} (${weekDays[dayjs(v.observedAt).day() === 0 ? 6 : dayjs(v.observedAt).day() - 1]})`
+              filter === 'week' || filter === 'month' ?
+                `${dayjs(v.observedAt).format('MMM DD')}`
               : dayjs(v.observedAt).format('DD MMM'),
           });
 
@@ -208,8 +208,8 @@ export default function AirQualityComponent() {
 
         pollutant.values.forEach((v) => {
           const date =
-            filter === 'week' ?
-              `${dayjs(v.observedAt).format('DD MMM')} (${weekDays[dayjs(v.observedAt).day() === 0 ? 6 : dayjs(v.observedAt).day() - 1]})`
+            filter === 'week' || filter === 'month' ?
+              `${dayjs(v.observedAt).format('MMM DD')}`
             : dayjs(v.observedAt).format('DD MMM');
           const hour = `${dayjs(v.observedAt).format('DD MMM')} (${weekDays[dayjs(v.observedAt).day() === 0 ? 6 : dayjs(v.observedAt).day() - 1]}) kl ${dayjs(v.observedAt).format('HH')}`;
           const month = dayjs(v.observedAt).format('MMMM YYYY');
@@ -281,7 +281,11 @@ export default function AirQualityComponent() {
           if (c.name === pollutant.name) {
             pollutantValues.push({
               value: c.value,
-              observedAt: c.observedAt,
+              observedAt:
+                filter === 'week' ?
+                  `${dayjs(new Date(c.observedAt)).format('DD MMM')} (${weekDays[dayjs(new Date(c.observedAt)).day() === 0 ? 6 : dayjs(new Date(c.observedAt)).day() - 1]})`
+                : filter === 'month' ? `${dayjs(new Date(c.observedAt)).format('DD MMM')}`
+                : c.observedAt,
             });
           }
         });
