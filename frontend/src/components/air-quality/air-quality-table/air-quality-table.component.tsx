@@ -1,4 +1,6 @@
+import { useAirStore } from '@services/air-service/air-service';
 import { AutoTable } from '@sk-web-gui/react';
+import dayjs from 'dayjs';
 
 interface AirQualityTableProps {
   tableData: {
@@ -8,6 +10,8 @@ interface AirQualityTableProps {
 }
 
 export const AirQualityTable: React.FC<AirQualityTableProps> = ({ tableData, pollutantLabels }) => {
+  const weekDays = ['Mån', 'Tis', 'Ons', 'Tors', 'Fre', 'Lör', 'Sön'];
+  const filter = useAirStore((s) => s.filter);
   const PollutansLabels = pollutantLabels.map((p) => {
     return {
       label: p,
@@ -23,7 +27,24 @@ export const AirQualityTable: React.FC<AirQualityTableProps> = ({ tableData, pol
       property: 'observedAt',
       isColumnSortable: false,
       sticky: true,
-      renderColumn: (value: string) => <span className="font-semibold">{value}</span>,
+      renderColumn: (value: string) => {
+        let dateString;
+        switch (filter) {
+          case 'week':
+            dateString = `${dayjs(new Date(value)).format('DD MMM')} (${weekDays[dayjs(new Date(value)).day() === 0 ? 6 : dayjs(new Date(value)).day() - 1]})`;
+            break;
+          case 'month':
+            dateString = `${dayjs(new Date(value)).format('DD MMM')}`;
+            break;
+          case 'year':
+            dateString = dayjs(new Date(value)).format('MMMM YYYY');
+            break;
+          default:
+            dateString = value;
+        }
+
+        return <span className="font-semibold">{dateString}</span>;
+      },
     },
     ...PollutansLabels,
   ];
