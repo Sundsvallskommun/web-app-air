@@ -96,7 +96,7 @@ export default function AirQualityComponent() {
 
           monthValues.push({
             value: v.value,
-            observedAt: dayjs(v.observedAt).format('MMMM YYYY'),
+            observedAt: dayjs(v.observedAt).format('YYYY MMMM'),
           });
         });
         const groupedByTime = dayValues.reduce(
@@ -212,7 +212,7 @@ export default function AirQualityComponent() {
               `${dayjs(v.observedAt).format('MMM DD')}`
             : dayjs(v.observedAt).format('DD MMM');
           const hour = `${dayjs(v.observedAt).format('DD MMM')} (${weekDays[dayjs(v.observedAt).day() === 0 ? 6 : dayjs(v.observedAt).day() - 1]}) kl ${dayjs(v.observedAt).format('HH')}`;
-          const month = dayjs(v.observedAt).format('MMMM YYYY');
+          const month = dayjs(v.observedAt).format('YYYY MMMM');
           if (!dates.includes(date)) {
             dates.push(date);
           }
@@ -279,13 +279,23 @@ export default function AirQualityComponent() {
         }
         cleaned.forEach((c) => {
           if (c.name === pollutant.name) {
+            let dateString;
+            switch (filter) {
+              case 'week':
+                dateString = `${dayjs(new Date(c.observedAt)).format('DD MMM')} (${weekDays[dayjs(new Date(c.observedAt)).day() === 0 ? 6 : dayjs(new Date(c.observedAt)).day() - 1]})`;
+                break;
+              case 'month':
+                dateString = `${dayjs(new Date(c.observedAt)).format('DD MMM')}`;
+                break;
+              case 'year':
+                dateString = dayjs(new Date(c.observedAt)).format('MMMM YYYY');
+                break;
+              default:
+                dateString = c.observedAt;
+            }
             pollutantValues.push({
               value: c.value,
-              observedAt:
-                filter === 'week' ?
-                  `${dayjs(new Date(c.observedAt)).format('DD MMM')} (${weekDays[dayjs(new Date(c.observedAt)).day() === 0 ? 6 : dayjs(new Date(c.observedAt)).day() - 1]})`
-                : filter === 'month' ? `${dayjs(new Date(c.observedAt)).format('DD MMM')}`
-                : c.observedAt,
+              observedAt: dateString,
             });
           }
         });
