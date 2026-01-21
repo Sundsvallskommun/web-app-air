@@ -13,16 +13,20 @@ export interface IAirQualityTable {
   observedAt: string;
 }
 
+type ViewType = 'line' | 'bar' | 'table';
+
 export default function AirQualityComponent() {
   const airQuality = useAirStore((state) => state.airQuality);
   const airQualityIsLoading = useAirStore((state) => state.airQualityIsLoading);
   const airQualityError = useAirStore((state) => state.airQualityError);
   const filter = useAirStore((state) => state.filter);
 
-  const [current, setCurrent] = useState<number>(0);
+  const [currentView, setCurrentView] = useState<ViewType>('line');
   const [desktop, setDesktop] = useState(false);
 
   const { graphData, tableData, pollutantLabels } = useAirQualityData(airQuality, filter);
+
+  const viewIndex = currentView === 'line' ? 0 : currentView === 'bar' ? 1 : 2;
 
   useEffect(() => {
     const handleResize = () => {
@@ -47,23 +51,27 @@ export default function AirQualityComponent() {
           {desktop ?
             <>
               <div className="container flex justify-end">
-                <NavigationBar current={current}>
+                <NavigationBar current={viewIndex}>
                   <NavigationBar.Item>
                     <Button
                       leftIcon={<LucideIcon name="chart-line" />}
-                      onClick={() => {
-                        setCurrent(0);
-                      }}
+                      onClick={() => setCurrentView('line')}
                     >
-                      Graf
+                      Linjediagram
+                    </Button>
+                  </NavigationBar.Item>
+                  <NavigationBar.Item>
+                    <Button
+                      leftIcon={<LucideIcon name="chart-column" />}
+                      onClick={() => setCurrentView('bar')}
+                    >
+                      Stapeldiagram
                     </Button>
                   </NavigationBar.Item>
                   <NavigationBar.Item>
                     <Button
                       leftIcon={<LucideIcon name="table" />}
-                      onClick={() => {
-                        setCurrent(1);
-                      }}
+                      onClick={() => setCurrentView('table')}
                     >
                       Tabell
                     </Button>
@@ -79,8 +87,10 @@ export default function AirQualityComponent() {
                   </div>
                 </div>
               )}
-              {current === 0 && <AirQualityGraph graphData={graphData} />}
-              {current === 1 && (
+              {(currentView === 'line' || currentView === 'bar') && (
+                <AirQualityGraph graphData={graphData} chartType={currentView} />
+              )}
+              {currentView === 'table' && (
                 <div className="px-16">
                   <AirQualityTable tableData={tableData} pollutantLabels={pollutantLabels} />
                 </div>

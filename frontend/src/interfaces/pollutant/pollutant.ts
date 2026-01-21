@@ -12,17 +12,17 @@ export enum Pollutant {
   NOx = 'NOx',
 }
 export const PollutantType = {
-  AtmosphericPressure: 'Lufttryck',
-  Temperature: 'Temperatur (C)',
+  AtmosphericPressure: 'Lufttryck (hPa)',
+  Temperature: 'Temperatur (°C)',
   RelativeHumidity: 'Relativ Luftfuktighet (%)',
-  PM1: 'PM1',
-  PM4: 'PM4',
-  PM10: 'PM10',
-  PM25: 'PM25',
-  TotalSuspendedParticulate: 'Upphängda partiklar',
-  NO: 'NO',
-  NO2: 'NO2',
-  NOx: 'NOx',
+  PM1: 'PM1 (µg/m³)',
+  PM4: 'PM4 (µg/m³)',
+  PM10: 'PM10 (µg/m³)',
+  PM25: 'PM2.5 (µg/m³)',
+  TotalSuspendedParticulate: 'TSP (µg/m³)',
+  NO: 'NO (µg/m³)',
+  NO2: 'NO2 (µg/m³)',
+  NOx: 'NOx (µg/m³)',
 };
 
 export const PollutantColor = {
