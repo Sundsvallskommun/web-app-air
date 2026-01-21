@@ -18,7 +18,8 @@ export interface IAirQualityTable {
 export default function AirQualityComponent() {
   const airQuality = useAirStore((state) => state.airQuality);
   const airQualityIsLoading = useAirStore((state) => state.airQualityIsLoading);
-  const [graphData, setGraphData] = useState<Pollutant[]>();
+  const airQualityError = useAirStore((state) => state.airQualityError);
+  const [graphData, setGraphData] = useState<Pollutant[]>([]);
   const [tableData, setTableData] = useState<{ [key: string]: number | string }[]>([]);
   const [pollutantLabels, setPollutantLables] = useState<string[]>([]);
   const [flatData, setFlatData] = useState<
@@ -367,59 +368,71 @@ export default function AirQualityComponent() {
     setTableData(newData);
   }, [flatData]);
 
-  return airQuality ?
-      <section className="flex flex-col items-center justify-center">
-        {airQualityIsLoading ?
-          <div className="w-full h-[60vh] py-24 flex justify-center items-center">
-            <Spinner size={4} />
-          </div>
-        : graphData && (
-            <div className="w-full">
-              {desktop ?
-                <>
-                  <div className="container flex justify-end">
-                    <NavigationBar current={current}>
-                      <NavigationBar.Item>
-                        <Button
-                          leftIcon={<LucideIcon name="chart-line" />}
-                          onClick={() => {
-                            setCurrent(0);
-                          }}
-                        >
-                          Graf
-                        </Button>
-                      </NavigationBar.Item>
-                      <NavigationBar.Item>
-                        <Button
-                          leftIcon={<LucideIcon name="table" />}
-                          onClick={() => {
-                            setCurrent(1);
-                          }}
-                        >
-                          Tabell
-                        </Button>
-                      </NavigationBar.Item>
-                    </NavigationBar>
+  return (
+    <section className="flex flex-col items-center justify-center">
+      {airQualityIsLoading ?
+        <div className="w-full h-[60vh] py-24 flex justify-center items-center">
+          <Spinner size={4} />
+        </div>
+      : <div className="w-full">
+          {desktop ?
+            <>
+              <div className="container flex justify-end">
+                <NavigationBar current={current}>
+                  <NavigationBar.Item>
+                    <Button
+                      leftIcon={<LucideIcon name="chart-line" />}
+                      onClick={() => {
+                        setCurrent(0);
+                      }}
+                    >
+                      Graf
+                    </Button>
+                  </NavigationBar.Item>
+                  <NavigationBar.Item>
+                    <Button
+                      leftIcon={<LucideIcon name="table" />}
+                      onClick={() => {
+                        setCurrent(1);
+                      }}
+                    >
+                      Tabell
+                    </Button>
+                  </NavigationBar.Item>
+                </NavigationBar>
+              </div>
+              <Divider className="my-16" />
+              <AirQualityFilter />
+              {airQualityError && (
+                <div className="container my-16">
+                  <div className="p-16 bg-error-surface-primary text-error rounded-lg border border-error">
+                    {airQualityError}
                   </div>
-                  <Divider className="my-16" />
-                  <AirQualityFilter />
-                  {current === 0 && <AirQualityGraph graphData={graphData} />}
-                  {current === 1 && (
-                    <div className="px-16">
-                      <AirQualityTable tableData={tableData} pollutantLabels={pollutantLabels} />
-                    </div>
-                  )}
-                </>
-              : <>
-                  <AirQualityFilter />
-                  <div className="px-16">
-                    <AirQualityTable tableData={tableData} pollutantLabels={pollutantLabels} />
+                </div>
+              )}
+              {current === 0 && <AirQualityGraph graphData={graphData} />}
+              {current === 1 && (
+                <div className="px-16">
+                  <AirQualityTable tableData={tableData} pollutantLabels={pollutantLabels} />
+                </div>
+              )}
+            </>
+          : <>
+              <AirQualityFilter />
+              {airQualityError && (
+                <div className="container my-16">
+                  <div className="p-16 bg-error-surface-primary text-error rounded-lg border border-error">
+                    {airQualityError}
                   </div>
-                </>
-              }
-            </div>
-          )
-        }
-      </section>
-    : <></>;
+                </div>
+              )}
+              <div className="px-16">
+                <AirQualityTable tableData={tableData} pollutantLabels={pollutantLabels} />
+              </div>
+            </>
+          }
+        </div>
+      }
+    </section>
+  );
 }

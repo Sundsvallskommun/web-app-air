@@ -18,6 +18,7 @@ const getAirQuality: (filter: string) => Promise<ServiceResponse<AirQualityData>
 interface State {
   airQuality: AirQuality;
   airQualityIsLoading: boolean;
+  airQualityError: string | null;
   filter: string;
 }
 
@@ -27,6 +28,21 @@ interface Actions {
   getAirQuality: (filter: string) => Promise<ServiceResponse<AirQualityData>>;
   reset: () => void;
 }
+
+const getErrorMessage = (error: string | number | undefined): string => {
+  switch (error) {
+    case 504:
+      return 'Servern svarar inte. Försök igen senare.';
+    case 502:
+      return 'Kunde inte ansluta till servern. Försök igen senare.';
+    case 500:
+      return 'Ett serverfel uppstod. Försök igen senare.';
+    case 404:
+      return 'Data kunde inte hittas.';
+    default:
+      return 'Ett fel uppstod vid hämtning av data. Försök igen senare.';
+  }
+};
 
 const initialState: State = {
   airQuality: {
@@ -42,6 +58,7 @@ const initialState: State = {
     pollutants: [],
   },
   airQualityIsLoading: false,
+  airQualityError: null,
   filter: 'week',
 };
 
@@ -49,28 +66,29 @@ export const useAirStore = create<State & Actions>()(
   devtools(
     (set, get) => ({
       ...initialState,
-      setAirQuality: (airQuality) => set(() => ({ airQuality, airQualityIsLoading: false })),
+      setAirQuality: (airQuality) => set(() => ({ airQuality, airQualityIsLoading: false, airQualityError: null })),
       setFilter(filter) {
-        set(() => ({ filter }));
+        set(() => ({ filter, airQualityError: null }));
         set(() => ({ airQualityIsLoading: true }));
         getAirQuality(filter).then((res) => {
           if (!res.error && res.data) {
-            set(() => ({ airQuality: res.data?.data, airQualityIsLoading: false }));
+            set(() => ({ airQuality: res.data?.data, airQualityIsLoading: false, airQualityError: null }));
           } else {
-            set(() => ({ airQualityIsLoading: false }));
+            set(() => ({ airQualityIsLoading: false, airQualityError: getErrorMessage(res.error) }));
           }
         });
       },
       getAirQuality: async (filter) => {
         let airQuality = get().airQuality;
-        set(() => ({ airQualityIsLoading: true }));
+        set(() => ({ airQualityIsLoading: true, airQualityError: null }));
         const res = await getAirQuality(filter);
         if (!res.error && res.data) {
           airQuality = res.data.data;
-          set(() => ({ airQuality: airQuality, airQualityIsLoading: false }));
+          set(() => ({ airQuality: airQuality, airQualityIsLoading: false, airQualityError: null }));
         } else {
-          set(() => ({ airQualityIsLoading: false }));
-          return { error: res.error, message: res.message };
+          const errorMessage = getErrorMessage(res.error);
+          set(() => ({ airQualityIsLoading: false, airQualityError: errorMessage }));
+          return { error: res.error, message: errorMessage };
         }
         return { data: airQuality };
       },

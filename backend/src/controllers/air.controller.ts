@@ -1,7 +1,11 @@
 import ApiService from '@/services/api.service';
 import { logger } from '@/utils/logger';
+import dayjs from 'dayjs';
 import { Controller, Get, Param } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
+
+const DATE_FORMAT = 'YYYY-MM-DD';
+const TIME_SUFFIX = 'T07%3A00%3A00Z';
 
 @Controller()
 export class AirController {
@@ -10,30 +14,22 @@ export class AirController {
   @Get('/airquality/:filter')
   @OpenAPI({ summary: 'get quality report of air in Sundsvall' })
   async getAirQualityReports(@Param('filter') filter: string): Promise<{ data; message: string }> {
-    const currentDate = `${new Date().getFullYear()}-${new Date().getMonth() + 1 > 9 ? new Date().getMonth() + 1 : '0' + (new Date().getMonth() + 1)}-${new Date().getDate() > 9 ? new Date().getDate() : '0' + new Date().getDate()}`;
+    const today = dayjs();
+    const todayFormatted = today.format(DATE_FORMAT);
 
-    const today = new Date();
-
-    const lastYearsDate = `${new Date().getFullYear() - 1}-${new Date().getMonth() + 1 > 9 ? new Date().getMonth() + 1 : '0' + (new Date().getMonth() + 1)}-${new Date().getDate() > 9 ? new Date().getDate() : '0' + new Date().getDate()}`;
-
-    const latestWeekDate = new Date(today);
-    latestWeekDate.setDate(today.getDate() - 7);
-    const latestWeek = latestWeekDate.toLocaleDateString();
-    const latestMonth = new Date(today.getFullYear(), today.getMonth() - 1, today.getDate()).toLocaleDateString();
-    let filterString;
+    let filterString = '';
 
     switch (filter) {
       case 'day':
-        filterString = '';
         break;
       case 'week':
-        filterString = `?from=${latestWeek}T07%3A00%3A00Z&to=${today.toLocaleDateString()}T07%3A00%3A00Z`;
+        filterString = `?from=${today.subtract(7, 'day').format(DATE_FORMAT)}${TIME_SUFFIX}&to=${todayFormatted}${TIME_SUFFIX}`;
         break;
       case 'month':
-        filterString = `?from=${latestMonth}T07%3A00%3A00Z&to=${today.toLocaleDateString()}T07%3A00%3A00Z`;
+        filterString = `?from=${today.subtract(1, 'month').format(DATE_FORMAT)}${TIME_SUFFIX}&to=${todayFormatted}${TIME_SUFFIX}`;
         break;
       case 'year':
-        filterString = `?from=${lastYearsDate}T07%3A00%3A00Z&to=${today.toLocaleDateString()}T07%3A00%3A00Z`;
+        filterString = `?from=${today.subtract(1, 'year').format(DATE_FORMAT)}${TIME_SUFFIX}&to=${todayFormatted}${TIME_SUFFIX}`;
         break;
     }
 
