@@ -1,5 +1,6 @@
 import { useAirStore } from '@services/air-service/air-service';
 import { AutoTable } from '@sk-web-gui/react';
+import { formatValue } from '@utils/format-value';
 import dayjs from 'dayjs';
 
 interface AirQualityTableProps {
@@ -17,7 +18,7 @@ export const AirQualityTable: React.FC<AirQualityTableProps> = ({ tableData, pol
       label: p,
       property: p,
       isColumnSortable: false,
-      renderColumn: (value: string) => <span>{value}</span>,
+      renderColumn: (value: number | string) => <span>{formatValue(value)}</span>,
     };
   });
 

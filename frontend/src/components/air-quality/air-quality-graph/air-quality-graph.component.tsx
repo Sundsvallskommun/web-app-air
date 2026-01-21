@@ -1,7 +1,8 @@
 import { Pollutant } from '@interfaces/airquality/airquality';
+import { PollutantColor, PollutantType } from '@interfaces/pollutant/pollutant';
+import { formatValue } from '@utils/format-value';
 import React from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Legend, ResponsiveContainer, Tooltip } from 'recharts';
-import { PollutantColor, PollutantType } from '@interfaces/pollutant/pollutant';
 
 interface AirQualityGraphProps {
   graphData: Pollutant[];
@@ -24,8 +25,8 @@ export const AirQualityGraph: React.FC<AirQualityGraphProps> = ({ graphData }) =
           <CartesianGrid strokeDasharray="3 3" />
 
           <XAxis dataKey="observedAt" allowDuplicatedCategory={false} />
-          <YAxis dataKey="value" domain={[-150, 1500]} />
-          <Tooltip />
+          <YAxis dataKey="value" domain={[-150, 1500]} tickFormatter={(value: number) => formatValue(value)} />
+          <Tooltip formatter={(value: number) => formatValue(value)} />
           <Legend height={100} />
           {graphData.map((pollutant) => {
             return (
