@@ -1,5 +1,5 @@
 import { useAirStore } from '@services/air-service/air-service';
-import { Button, Divider, MenuBar, Spinner } from '@sk-web-gui/react';
+import { Button, Divider, NavigationBar, Spinner } from '@sk-web-gui/react';
 import { useEffect, useState } from 'react';
 import { Pollutant, Value } from '@interfaces/airquality/airquality';
 import { AirQualityGraph } from './air-quality-graph/air-quality-graph.component';
@@ -378,8 +378,8 @@ export default function AirQualityComponent() {
               {desktop ?
                 <>
                   <div className="container flex justify-end">
-                    <MenuBar current={current}>
-                      <MenuBar.Item>
+                    <NavigationBar current={current}>
+                      <NavigationBar.Item>
                         <Button
                           leftIcon={<LucideIcon name="chart-line" />}
                           onClick={() => {
@@ -388,8 +388,8 @@ export default function AirQualityComponent() {
                         >
                           Graf
                         </Button>
-                      </MenuBar.Item>
-                      <MenuBar.Item>
+                      </NavigationBar.Item>
+                      <NavigationBar.Item>
                         <Button
                           leftIcon={<LucideIcon name="table" />}
                           onClick={() => {
@@ -398,8 +398,8 @@ export default function AirQualityComponent() {
                         >
                           Tabell
                         </Button>
-                      </MenuBar.Item>
-                    </MenuBar>
+                      </NavigationBar.Item>
+                    </NavigationBar>
                   </div>
                   <Divider className="my-16" />
                   <AirQualityFilter />

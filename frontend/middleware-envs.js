@@ -1,6 +1,6 @@
 export const envs = {
   protectedRoutes: '',
-  adminUrl: 'http://localhost:3002/',
+  adminUrl: '',
   basePath: '',
-  apiUrl: 'http://localhost:3001/api',
+  apiUrl: '',
 };
