@@ -8,7 +8,17 @@ interface AirQualityGraphProps {
   graphData: Pollutant[];
 }
 
+const HIDDEN_IN_GRAPH = ['AtmosphericPressure', 'RelativeHumidity'];
+
 export const AirQualityGraph: React.FC<AirQualityGraphProps> = ({ graphData }) => {
+  const filteredData = graphData.filter((pollutant) => !HIDDEN_IN_GRAPH.includes(pollutant.name));
+
+  const allValues = filteredData.flatMap((pollutant) => pollutant.values.map((v) => v.value));
+  const minValue = allValues.length > 0 ? Math.min(...allValues) : 0;
+  const maxValue = allValues.length > 0 ? Math.max(...allValues) : 100;
+  const padding = (maxValue - minValue) * 0.1 || 10;
+  const domain: [number, number] = [Math.floor(minValue - padding), Math.ceil(maxValue + padding)];
+
   return (
     <div style={{ width: '100%', height: '80vh' }}>
       <ResponsiveContainer width="100%" height="100%" className="mb-56 mt-24">
@@ -25,10 +35,10 @@ export const AirQualityGraph: React.FC<AirQualityGraphProps> = ({ graphData }) =
           <CartesianGrid strokeDasharray="3 3" />
 
           <XAxis dataKey="observedAt" allowDuplicatedCategory={false} />
-          <YAxis dataKey="value" domain={[-150, 1500]} tickFormatter={(value: number) => formatValue(value)} />
+          <YAxis dataKey="value" domain={domain} tickFormatter={(value: number) => formatValue(value)} />
           <Tooltip formatter={(value: number) => formatValue(value)} />
           <Legend height={100} />
-          {graphData.map((pollutant) => {
+          {filteredData.map((pollutant) => {
             return (
               <Line
                 dataKey="value"
