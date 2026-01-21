@@ -3,5 +3,5 @@
   "compilerOptions": {
     "types": ["cypress"]
   },
-  "include": ["cypress.config.ts", "cypress/**/*.d.ts", "**/*.cy.ts", "**/*.cy.tsx"]
+  "include": ["cypress.config.ts", "cypress/**/*.d.ts", "cypress/fixtures/**/*.ts", "**/*.cy.ts", "**/*.cy.tsx"]
 }
