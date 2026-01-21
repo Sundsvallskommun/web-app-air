@@ -1,6 +1,6 @@
 import '@styles/tailwind.scss';
 import { ReactNode } from 'react';
-import AppLayout from '@layouts/app/app-layout.component';
+import AppLayoutWrapper from '@components/app-layout-wrapper/app-layout-wrapper';
 import i18nConfig from './i18nConfig';
 
 interface RootLayoutProps {
@@ -15,7 +15,7 @@ const RootLayout = async ({ children, params }: RootLayoutProps) => {
   return (
     <html lang={locale}>
       <body>
-        <AppLayout>{children}</AppLayout>
+        <AppLayoutWrapper>{children}</AppLayoutWrapper>
       </body>
     </html>
   );

@@ -23,7 +23,9 @@
     "test": "concurrently \"yarn jest\" \"yarn cypress\"",
     "coverage": "yarn nyc report --reporter=text-summary",
     "coverage:merge": "istanbul-merge --out coverage/summary/coverage-final.json coverage/cypress/coverage-final.json coverage/jest/coverage-final.json && nyc report --reporter=lcov -t coverage/summary --report-dir coverage/summary --check-coverage false",
-    "test:coverage": "yarn cypress:headless && yarn jest:coverage && yarn coverage:merge",
+    "coverage:enable-babel": "node -e \"require('fs').copyFileSync('babel.coverage.js','babel.config.js')\"",
+    "coverage:disable-babel": "node -e \"try{require('fs').unlinkSync('babel.config.js')}catch(e){}\"",
+    "test:coverage": "yarn coverage:enable-babel && yarn cypress:headless && yarn jest:coverage && yarn coverage:merge; yarn coverage:disable-babel",
     "type-check": "tsc --pretty --noEmit"
   },
   "dependencies": {
