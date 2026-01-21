@@ -1,11 +1,11 @@
-import ApiExternalService from '@/services/api-external.service ';
+import ApiService from '@/services/api.service';
 import { logger } from '@/utils/logger';
 import { Controller, Get, Param } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
 
 @Controller()
 export class AirController {
-  private apiService = new ApiExternalService();
+  private apiService = new ApiService();
 
   @Get('/airquality/:filter')
   @OpenAPI({ summary: 'get quality report of air in Sundsvall' })
