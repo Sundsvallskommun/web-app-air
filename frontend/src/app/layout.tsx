@@ -5,15 +5,13 @@ import i18nConfig from './i18nConfig';
 
 interface RootLayoutProps {
   children: ReactNode;
-  params: Promise<{ locale: string }>;
 }
 
 export const generateStaticParams = () => i18nConfig.locales.map((locale) => ({ locale }));
 
-const RootLayout = async ({ children, params }: RootLayoutProps) => {
-  const { locale } = await params;
+const RootLayout = ({ children }: RootLayoutProps) => {
   return (
-    <html lang={locale}>
+    <html lang={i18nConfig.defaultLocale}>
       <body>
         <AppLayoutWrapper>{children}</AppLayoutWrapper>
       </body>

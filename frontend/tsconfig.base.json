@@ -30,6 +30,7 @@
       "@layouts/*": ["src/layouts/*"],
       "@styles/*": ["src/styles/*"],
       "@utils/*": ["src/utils/*"],
+      "@hooks/*": ["src/hooks/*"],
       "@middlewares/*": ["src/utils/middlewares/*"],
       "@public/*": ["public/*"],
       "@jestRoot/*": ["jest/*"],

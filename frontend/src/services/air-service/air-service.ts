@@ -29,7 +29,7 @@ interface Actions {
   reset: () => void;
 }
 
-const getErrorMessage = (error: string | number | undefined): string => {
+const getErrorMessage = (error: string | number | boolean | undefined): string => {
   switch (error) {
     case 504:
       return 'Servern svarar inte. Försök igen senare.';
