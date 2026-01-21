@@ -59,41 +59,43 @@ export const AirQualityGraph: React.FC<AirQualityGraphProps> = ({ graphData, cha
   };
 
   return (
-    <div style={{ width: '100%', height: '80vh' }}>
-      <ResponsiveContainer width="100%" height="100%" className="mb-56 mt-24">
-        {chartType === 'bar' ?
-          <BarChart height={800} data={barChartData} margin={chartMargin}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="observedAt" />
-            <YAxis domain={domain} tickFormatter={(value: number) => formatValue(value)} />
-            <Tooltip formatter={(value: number) => formatValue(value)} />
-            <Legend height={100} />
-            {filteredData.map((pollutant) => (
-              <Bar
-                dataKey={PollutantType[pollutant.name as keyof typeof PollutantType]}
-                fill={PollutantColor[pollutant.name as keyof typeof PollutantColor]}
-                key={pollutant.name}
-              />
-            ))}
-          </BarChart>
-        : <LineChart height={800} data={graphData} margin={chartMargin}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="observedAt" allowDuplicatedCategory={false} />
-            <YAxis dataKey="value" domain={domain} tickFormatter={(value: number) => formatValue(value)} />
-            <Tooltip formatter={(value: number) => formatValue(value)} />
-            <Legend height={100} />
-            {filteredData.map((pollutant) => (
-              <Line
-                dataKey="value"
-                stroke={PollutantColor[pollutant.name as keyof typeof PollutantColor]}
-                data={pollutant.values}
-                name={PollutantType[pollutant.name as keyof typeof PollutantType]}
-                key={pollutant.name}
-              />
-            ))}
-          </LineChart>
-        }
-      </ResponsiveContainer>
+    <div className="flex justify-center">
+      <div style={{ width: '75%', height: '60vh' }}>
+        <ResponsiveContainer width="100%" height="100%" className="mb-56 mt-24">
+          {chartType === 'bar' ?
+            <BarChart height={800} data={barChartData} margin={chartMargin}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="observedAt" />
+              <YAxis domain={domain} tickFormatter={(value: number) => formatValue(value)} />
+              <Tooltip formatter={(value: number) => formatValue(value)} />
+              <Legend height={100} />
+              {filteredData.map((pollutant) => (
+                <Bar
+                  dataKey={PollutantType[pollutant.name as keyof typeof PollutantType]}
+                  fill={PollutantColor[pollutant.name as keyof typeof PollutantColor]}
+                  key={pollutant.name}
+                />
+              ))}
+            </BarChart>
+          : <LineChart height={800} data={graphData} margin={chartMargin}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="observedAt" allowDuplicatedCategory={false} />
+              <YAxis dataKey="value" domain={domain} tickFormatter={(value: number) => formatValue(value)} />
+              <Tooltip formatter={(value: number) => formatValue(value)} />
+              <Legend height={100} />
+              {filteredData.map((pollutant) => (
+                <Line
+                  dataKey="value"
+                  stroke={PollutantColor[pollutant.name as keyof typeof PollutantColor]}
+                  data={pollutant.values}
+                  name={PollutantType[pollutant.name as keyof typeof PollutantType]}
+                  key={pollutant.name}
+                />
+              ))}
+            </LineChart>
+          }
+        </ResponsiveContainer>
+      </div>
     </div>
   );
 };
