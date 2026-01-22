@@ -128,8 +128,7 @@ export function getPollutantLabel(name: string): string {
  */
 export function processGroupedData(
   groupedData: GroupedData,
-  keys: string[],
-  pollutantName: string
+  keys: string[]
 ): { cleaned: FlatDataItem[]; tableArr: FlatDataItem[] } {
   const cleaned: FlatDataItem[] = [];
   const tableArr: FlatDataItem[] = [];
@@ -223,7 +222,7 @@ export function processPollutantData(
 
   const groupedData = groupByKey(values, keyFn, pollutantName);
   const keys = getUniqueKeys(values, keyFn);
-  const { cleaned, tableArr } = processGroupedData(groupedData, keys, pollutantName);
+  const { cleaned, tableArr } = processGroupedData(groupedData, keys);
 
   // Format for graph display
   const pollutantValues: Value[] = cleaned

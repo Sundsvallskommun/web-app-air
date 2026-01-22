@@ -3,11 +3,11 @@
 import AirQualityComponent from '@components/air-quality/air-quality.component';
 import DefaultLayout from '@layouts/default-layout/default-layout.component';
 import Main from '@layouts/main/main.component';
-import { useTranslation } from 'react-i18next';
-import { capitalize } from 'underscore.string';
+// import { useTranslation } from 'react-i18next';
+// import { capitalize } from 'underscore.string';
 
 const Luftkvalitetsida: React.FC = () => {
-  const { t } = useTranslation();
+  // const { t } = useTranslation();
   return (
     <DefaultLayout>
       <Main>

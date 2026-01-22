@@ -54,6 +54,7 @@ const AppLayout = ({ children }: ClientApplicationProps) => {
       }
     });
     setMounted(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [getAirQuality, setMounted]);
 
   if (!mounted) {
