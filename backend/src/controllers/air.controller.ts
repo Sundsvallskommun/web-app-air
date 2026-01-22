@@ -76,7 +76,7 @@ export class AirController {
       return { data: generateMockAirQuality(filter), message: 'success' };
     }
 
-    const today = dayjs('2025-04-25');
+    const today = dayjs();
     const todayFormatted = today.format(DATE_FORMAT);
     const hours = today.format('HH');
     const minutes = today.format('mm');
