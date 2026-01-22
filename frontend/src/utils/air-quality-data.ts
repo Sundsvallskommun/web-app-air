@@ -196,7 +196,7 @@ export function processPollutantData(
 } {
   const { values, name: pollutantName } = pollutant;
 
-  if (filter === 'day') {
+  if (filter === 'day' || filter === 'fourdays') {
     const hourValues: Value[] = values.map((v) => ({
       value: v.value,
       observedAt: formatHourLabel(dayjs(v.observedAt)),

@@ -14,13 +14,20 @@ export class AirController {
   @Get('/airquality/:filter')
   @OpenAPI({ summary: 'get quality report of air in Sundsvall' })
   async getAirQualityReports(@Param('filter') filter: string): Promise<{ data; message: string }> {
-    const today = dayjs();
+    const today = dayjs('2025-04-25');
     const todayFormatted = today.format(DATE_FORMAT);
+    const hours = today.format('HH');
+    const minutes = today.format('mm');
+    const currentTimeSuffix = `T${hours}%3A${minutes}%3A00Z`;
 
     let filterString = '';
 
     switch (filter) {
       case 'day':
+        filterString = `?from=${today.subtract(1, 'day').format(DATE_FORMAT)}${currentTimeSuffix}&to=${todayFormatted}${currentTimeSuffix}`;
+        break;
+      case 'fourdays':
+        filterString = `?from=${today.subtract(4, 'day').format(DATE_FORMAT)}${currentTimeSuffix}&to=${todayFormatted}${currentTimeSuffix}`;
         break;
       case 'week':
         filterString = `?from=${today.subtract(7, 'day').format(DATE_FORMAT)}${TIME_SUFFIX}&to=${todayFormatted}${TIME_SUFFIX}`;
