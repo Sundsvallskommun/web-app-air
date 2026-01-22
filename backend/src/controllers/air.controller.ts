@@ -7,6 +7,63 @@ import { OpenAPI } from 'routing-controllers-openapi';
 const DATE_FORMAT = 'YYYY-MM-DD';
 const TIME_SUFFIX = 'T07%3A00%3A00Z';
 
+// Set to true to use mock data instead of real API
+const USE_MOCK_DATA = process.env.NODE_ENV === 'development';
+
+const POLLUTANT_CONFIGS = [
+  { name: 'PM1', baseValue: 5, variance: 3 },
+  { name: 'PM25', baseValue: 10, variance: 5 },
+  { name: 'PM4', baseValue: 12, variance: 6 },
+  { name: 'PM10', baseValue: 20, variance: 10 },
+  { name: 'TotalSuspendedParticulate', baseValue: 25, variance: 12 },
+  { name: 'NO', baseValue: 15, variance: 8 },
+  { name: 'NO2', baseValue: 25, variance: 12 },
+  { name: 'NOx', baseValue: 40, variance: 20 },
+  { name: 'Temperature', baseValue: 10, variance: 8 },
+  { name: 'RelativeHumidity', baseValue: 60, variance: 20 },
+  { name: 'AtmosphericPressure', baseValue: 1013, variance: 10 },
+];
+
+function generateMockAirQuality(filter: string) {
+  const now = dayjs();
+  const hoursMap: Record<string, number> = {
+    day: 24,
+    fourdays: 96,
+    week: 168,
+    month: 720,
+    year: 8760,
+  };
+  const hours = hoursMap[filter] || 24;
+
+  const timestamps: string[] = [];
+  for (let i = hours - 1; i >= 0; i--) {
+    timestamps.push(now.subtract(i, 'hour').toISOString());
+  }
+
+  const pollutants = POLLUTANT_CONFIGS.map(config => ({
+    name: config.name,
+    values: timestamps.map(timestamp => ({
+      value: Math.max(0, Math.round((config.baseValue + (Math.random() - 0.5) * 2 * config.variance) * 100) / 100),
+      observedAt: timestamp,
+    })),
+  }));
+
+  return {
+    data: {
+      dateObserved: {
+        type: 'Property',
+        value: now.toISOString(),
+      },
+      id: 'urn:ngsi-ld:AirQualityObserved:mock-data',
+      location: {
+        type: 'Point',
+        coordinates: [17.3069, 62.3908],
+      },
+      pollutants,
+    },
+  };
+}
+
 @Controller()
 export class AirController {
   private apiService = new ApiService();
@@ -14,6 +71,11 @@ export class AirController {
   @Get('/airquality/:filter')
   @OpenAPI({ summary: 'get quality report of air in Sundsvall' })
   async getAirQualityReports(@Param('filter') filter: string): Promise<{ data; message: string }> {
+    if (USE_MOCK_DATA) {
+      logger.info(`Using mock data for filter: ${filter}`);
+      return { data: generateMockAirQuality(filter), message: 'success' };
+    }
+
     const today = dayjs('2025-04-25');
     const todayFormatted = today.format(DATE_FORMAT);
     const hours = today.format('HH');
