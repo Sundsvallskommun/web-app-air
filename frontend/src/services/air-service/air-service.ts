@@ -20,6 +20,7 @@ interface State {
   airQualityIsLoading: boolean;
   airQualityError: string | null;
   filter: string;
+  cache: Record<string, AirQuality>;
 }
 
 interface Actions {
@@ -60,6 +61,7 @@ const initialState: State = {
   airQualityIsLoading: false,
   airQualityError: null,
   filter: 'fourdays',
+  cache: {},
 };
 
 export const useAirStore = create<State & Actions>()(
@@ -68,29 +70,53 @@ export const useAirStore = create<State & Actions>()(
       ...initialState,
       setAirQuality: (airQuality) => set(() => ({ airQuality, airQualityIsLoading: false, airQualityError: null })),
       setFilter(filter) {
+        const cachedData = get().cache[filter];
         set(() => ({ filter, airQualityError: null }));
+
+        if (cachedData) {
+          set(() => ({ airQuality: cachedData }));
+          return Promise.resolve({ data: cachedData });
+        }
+
         set(() => ({ airQualityIsLoading: true }));
-        getAirQuality(filter).then((res) => {
+        return getAirQuality(filter).then((res) => {
           if (!res.error && res.data) {
-            set(() => ({ airQuality: res.data?.data, airQualityIsLoading: false, airQualityError: null }));
+            const data = res.data.data;
+            set((state) => ({
+              airQuality: data,
+              airQualityIsLoading: false,
+              airQualityError: null,
+              cache: { ...state.cache, [filter]: data },
+            }));
           } else {
             set(() => ({ airQualityIsLoading: false, airQualityError: getErrorMessage(res.error) }));
           }
+          return res;
         });
       },
       getAirQuality: async (filter) => {
-        let airQuality = get().airQuality;
+        const cachedData = get().cache[filter];
+        if (cachedData) {
+          set(() => ({ airQuality: cachedData, airQualityError: null }));
+          return { data: cachedData };
+        }
+
         set(() => ({ airQualityIsLoading: true, airQualityError: null }));
         const res = await getAirQuality(filter);
         if (!res.error && res.data) {
-          airQuality = res.data.data;
-          set(() => ({ airQuality: airQuality, airQualityIsLoading: false, airQualityError: null }));
+          const data = res.data.data;
+          set((state) => ({
+            airQuality: data,
+            airQualityIsLoading: false,
+            airQualityError: null,
+            cache: { ...state.cache, [filter]: data },
+          }));
+          return { data };
         } else {
           const errorMessage = getErrorMessage(res.error);
           set(() => ({ airQualityIsLoading: false, airQualityError: errorMessage }));
           return { error: res.error, message: errorMessage };
         }
-        return { data: airQuality };
       },
       reset: () => {
         set(initialState);
