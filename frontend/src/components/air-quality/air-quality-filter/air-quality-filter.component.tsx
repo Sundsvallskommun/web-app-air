@@ -6,24 +6,31 @@ export const AirQualityFilter = () => {
   const filter = useAirStore((state) => state.filter);
   const setFilter = useAirStore((state) => state.setFilter);
   const filters = [
+    // Commented out due to API limitation (max 100 data points)
+    // Uncomment when API can return more data
+    // {
+    //   label: 'År',
+    //   id: 0,
+    //   value: 'year',
+    // },
+    // {
+    //   label: 'Månad',
+    //   id: 1,
+    //   value: 'month',
+    // },
+    // {
+    //   label: 'Vecka',
+    //   id: 2,
+    //   value: 'week',
+    // },
     {
-      label: 'År',
+      label: '4 dagar',
       id: 0,
-      value: 'year',
-    },
-    {
-      label: 'Månad',
-      id: 1,
-      value: 'month',
-    },
-    {
-      label: 'Vecka',
-      id: 2,
-      value: 'week',
+      value: 'fourdays',
     },
     {
       label: 'Dygn',
-      id: 3,
+      id: 1,
       value: 'day',
     },
   ];
@@ -33,6 +40,9 @@ export const AirQualityFilter = () => {
   switch (filter) {
     case 'day':
       filterHeading = 'senaste dygnet';
+      break;
+    case 'fourdays':
+      filterHeading = 'senaste 4 dagarna';
       break;
     case 'week':
       filterHeading = 'senaste veckan';

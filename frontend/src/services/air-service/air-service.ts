@@ -59,7 +59,7 @@ const initialState: State = {
   },
   airQualityIsLoading: false,
   airQualityError: null,
-  filter: 'week',
+  filter: 'fourdays',
 };
 
 export const useAirStore = create<State & Actions>()(

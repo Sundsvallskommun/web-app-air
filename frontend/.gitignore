@@ -17,6 +17,7 @@ babel.config.js
 
 # production
 /build
+tsconfig.tsbuildinfo
 
 # quirks
 # middleware envs needs to be generated for edge runtime to work

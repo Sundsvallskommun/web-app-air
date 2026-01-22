@@ -31,10 +31,10 @@ export const AirQualityGraph: React.FC<AirQualityGraphProps> = ({ graphData, cha
   const minValue = allValues.length > 0 ? Math.min(...allValues) : 0;
   const maxValue = allValues.length > 0 ? Math.max(...allValues) : 100;
   const padding = (maxValue - minValue) * 0.1 || 10;
-  const domain: [number, number] = [Math.floor(minValue - padding), Math.ceil(maxValue + padding)];
+  const domain: [number, number] = [0, Math.ceil(maxValue + padding)];
 
-  const barChartData = useMemo(() => {
-    if (chartType !== 'bar' || filteredData.length === 0) return [];
+  const chartData = useMemo(() => {
+    if (filteredData.length === 0) return [];
 
     const dataByDate: Record<string, Record<string, number | string>> = {};
 
@@ -49,7 +49,7 @@ export const AirQualityGraph: React.FC<AirQualityGraphProps> = ({ graphData, cha
     });
 
     return Object.values(dataByDate);
-  }, [filteredData, chartType]);
+  }, [filteredData]);
 
   const chartMargin = {
     top: 20,
@@ -63,7 +63,7 @@ export const AirQualityGraph: React.FC<AirQualityGraphProps> = ({ graphData, cha
       <div style={{ width: '75%', height: '60vh' }}>
         <ResponsiveContainer width="100%" height="100%" className="mb-56 mt-24">
           {chartType === 'bar' ?
-            <BarChart height={800} data={barChartData} margin={chartMargin}>
+            <BarChart height={800} data={chartData} margin={chartMargin}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="observedAt" />
               <YAxis domain={domain} tickFormatter={(value: number) => formatValue(value)} />
@@ -77,17 +77,16 @@ export const AirQualityGraph: React.FC<AirQualityGraphProps> = ({ graphData, cha
                 />
               ))}
             </BarChart>
-          : <LineChart height={800} data={graphData} margin={chartMargin}>
+          : <LineChart height={800} data={chartData} margin={chartMargin}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="observedAt" allowDuplicatedCategory={false} />
-              <YAxis dataKey="value" domain={domain} tickFormatter={(value: number) => formatValue(value)} />
+              <XAxis dataKey="observedAt" />
+              <YAxis domain={domain} tickFormatter={(value: number) => formatValue(value)} />
               <Tooltip formatter={(value: number) => formatValue(value)} />
               <Legend height={100} />
               {filteredData.map((pollutant) => (
                 <Line
-                  dataKey="value"
+                  dataKey={PollutantType[pollutant.name as keyof typeof PollutantType]}
                   stroke={PollutantColor[pollutant.name as keyof typeof PollutantColor]}
-                  data={pollutant.values}
                   name={PollutantType[pollutant.name as keyof typeof PollutantType]}
                   key={pollutant.name}
                 />
