@@ -1,5 +1,5 @@
 import { useAirStore } from '@services/air-service/air-service';
-import { Button, Divider, NavigationBar, Spinner } from '@sk-web-gui/react';
+import { Button, Divider, NavigationBar, Spinner, useSnackbar } from '@sk-web-gui/react';
 import { useEffect, useState } from 'react';
 import { AirQualityGraph } from './air-quality-graph/air-quality-graph.component';
 import { AirQualityTable } from './air-quality-table/air-quality-table.component';
@@ -23,8 +23,18 @@ export default function AirQualityComponent() {
 
   const [currentView, setCurrentView] = useState<ViewType>('line');
   const [desktop, setDesktop] = useState(false);
+  const toastMessage = useSnackbar();
 
   const { graphData, tableData, pollutantLabels } = useAirQualityData(airQuality, filter);
+
+  useEffect(() => {
+    if (airQualityError) {
+      toastMessage({
+        status: 'error',
+        message: airQualityError,
+      });
+    }
+  }, [airQualityError, toastMessage]);
 
   const viewIndex = currentView === 'line' ? 0 : currentView === 'bar' ? 1 : 2;
 
@@ -80,13 +90,6 @@ export default function AirQualityComponent() {
               </div>
               <Divider className="my-16" />
               <AirQualityFilter />
-              {airQualityError && (
-                <div className="container my-16">
-                  <div className="p-16 bg-error-surface-primary text-error rounded-lg border border-error">
-                    {airQualityError}
-                  </div>
-                </div>
-              )}
               {(currentView === 'line' || currentView === 'bar') && (
                 <AirQualityGraph graphData={graphData} chartType={currentView} />
               )}
@@ -98,13 +101,6 @@ export default function AirQualityComponent() {
             </>
           : <>
               <AirQualityFilter />
-              {airQualityError && (
-                <div className="container my-16">
-                  <div className="p-16 bg-error-surface-primary text-error rounded-lg border border-error">
-                    {airQualityError}
-                  </div>
-                </div>
-              )}
               <div className="px-16">
                 <AirQualityTable tableData={tableData} pollutantLabels={pollutantLabels} />
               </div>
