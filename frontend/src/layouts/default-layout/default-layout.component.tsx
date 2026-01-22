@@ -64,8 +64,6 @@ export default function DefaultLayout({
 
       {postContent && postContent}
 
-      <Footer></Footer>
-
       <CookieConsent
         title={t('layout:cookies.title', { app: process.env.NEXT_PUBLIC_APP_NAME })}
         body={
