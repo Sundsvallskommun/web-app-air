@@ -51,63 +51,76 @@ export default function AirQualityComponent() {
     };
   }, []);
 
-  return (
-    <section className="flex flex-col items-center justify-center">
-      {airQualityIsLoading ?
-        <div className="w-full h-[60vh] py-24 flex justify-center items-center">
+  const renderContent = () => {
+    if (airQualityIsLoading) {
+      return (
+        <div className="w-full h-[50vh] flex justify-center items-center">
           <Spinner size={4} />
         </div>
-      : <div className="w-full">
-          {desktop ?
-            <>
-              <div className="container flex justify-end">
-                <NavigationBar current={viewIndex}>
-                  <NavigationBar.Item>
-                    <Button
-                      leftIcon={<LucideIcon name="chart-line" />}
-                      onClick={() => setCurrentView('line')}
-                    >
-                      Linjediagram
-                    </Button>
-                  </NavigationBar.Item>
-                  <NavigationBar.Item>
-                    <Button
-                      leftIcon={<LucideIcon name="chart-column" />}
-                      onClick={() => setCurrentView('bar')}
-                    >
-                      Stapeldiagram
-                    </Button>
-                  </NavigationBar.Item>
-                  <NavigationBar.Item>
-                    <Button
-                      leftIcon={<LucideIcon name="table" />}
-                      onClick={() => setCurrentView('table')}
-                    >
-                      Tabell
-                    </Button>
-                  </NavigationBar.Item>
-                </NavigationBar>
-              </div>
-              <Divider className="my-16" />
-              <AirQualityFilter />
-              {(currentView === 'line' || currentView === 'bar') && (
-                <AirQualityGraph graphData={graphData} chartType={currentView} />
-              )}
-              {currentView === 'table' && (
-                <div className="px-16">
-                  <AirQualityTable tableData={tableData} pollutantLabels={pollutantLabels} />
-                </div>
-              )}
-            </>
-          : <>
-              <AirQualityFilter />
-              <div className="px-16">
-                <AirQualityTable tableData={tableData} pollutantLabels={pollutantLabels} />
-              </div>
-            </>
-          }
-        </div>
-      }
+      );
+    }
+
+    if (desktop) {
+      return (
+        <>
+          {(currentView === 'line' || currentView === 'bar') && (
+            <AirQualityGraph graphData={graphData} chartType={currentView} />
+          )}
+          {currentView === 'table' && (
+            <div className="px-16">
+              <AirQualityTable tableData={tableData} pollutantLabels={pollutantLabels} />
+            </div>
+          )}
+        </>
+      );
+    }
+
+    return (
+      <div className="px-16">
+        <AirQualityTable tableData={tableData} pollutantLabels={pollutantLabels} />
+      </div>
+    );
+  };
+
+  return (
+    <section className="flex flex-col items-center justify-center">
+      <div className="w-full">
+        {desktop && (
+          <>
+            <div className="container flex justify-end">
+              <NavigationBar current={viewIndex}>
+                <NavigationBar.Item>
+                  <Button
+                    leftIcon={<LucideIcon name="chart-line" />}
+                    onClick={() => setCurrentView('line')}
+                  >
+                    Linjediagram
+                  </Button>
+                </NavigationBar.Item>
+                <NavigationBar.Item>
+                  <Button
+                    leftIcon={<LucideIcon name="chart-column" />}
+                    onClick={() => setCurrentView('bar')}
+                  >
+                    Stapeldiagram
+                  </Button>
+                </NavigationBar.Item>
+                <NavigationBar.Item>
+                  <Button
+                    leftIcon={<LucideIcon name="table" />}
+                    onClick={() => setCurrentView('table')}
+                  >
+                    Tabell
+                  </Button>
+                </NavigationBar.Item>
+              </NavigationBar>
+            </div>
+            <Divider className="my-16" />
+          </>
+        )}
+        <AirQualityFilter />
+        {renderContent()}
+      </div>
     </section>
   );
 }
