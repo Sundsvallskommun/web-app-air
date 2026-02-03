@@ -64,10 +64,27 @@ export function calculateGroupAverage(group: { value: number }[]): number {
 }
 
 /**
- * Format date as hour label: "DD MMM (Weekday) kl HH"
+ * Format date as hour label: "HH:mm|YYYY-MM-DD"
+ * Contains both time and date separated by | for parsing
  */
 export function formatHourLabel(date: dayjs.Dayjs): string {
-  return `${date.format('DD MMM')} (${getSwedishWeekday(date)}) kl ${date.format('HH')}`;
+  return `${date.format('HH:mm')}|${date.format('YYYY-MM-DD')}`;
+}
+
+/**
+ * Format hour label for axis display (short): "HH:mm"
+ */
+export function formatAxisLabel(label: string): string {
+  return label.split('|')[0];
+}
+
+/**
+ * Format hour label for tooltip display (full): "YYYY-MM-DD kl HH:mm"
+ */
+export function formatTooltipLabel(label: string): string {
+  const [time, date] = label.split('|');
+  if (!date) return label;
+  return `${date} kl ${time}`;
 }
 
 /**
