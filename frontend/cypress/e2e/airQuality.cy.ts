@@ -16,9 +16,10 @@ describe('Air Quality Page', () => {
       cy.get('h1').should('contain.text', 'Luftkvalitet');
     });
 
-    it('should display Graf and Tabell navigation buttons', () => {
+    it('should display Linjediagram, Stapeldiagram and Tabell navigation buttons', () => {
       cy.wait('@getAirQualityFourdays');
-      cy.contains('button', 'Graf').should('be.visible');
+      cy.contains('button', 'Linjediagram').should('be.visible');
+      cy.contains('button', 'Stapeldiagram').should('be.visible');
       cy.contains('button', 'Tabell').should('be.visible');
     });
 
@@ -45,10 +46,10 @@ describe('Air Quality Page', () => {
       cy.get('table').should('be.visible');
     });
 
-    it('should switch back to graph view when clicking Graf', () => {
+    it('should switch back to graph view when clicking Linjediagram', () => {
       cy.wait('@getAirQualityFourdays');
       cy.contains('button', 'Tabell').click();
-      cy.contains('button', 'Graf').click();
+      cy.contains('button', 'Linjediagram').click();
       cy.get('.recharts-responsive-container').should('be.visible');
     });
 
@@ -59,18 +60,13 @@ describe('Air Quality Page', () => {
       cy.get('h1').should('contain.text', 'dygnet');
     });
 
-    it('should fetch month data when clicking Månad filter', () => {
+    it('should fetch fourdays data when clicking 4 dagar filter', () => {
       cy.wait('@getAirQualityFourdays');
-      cy.contains('button', 'Månad').click();
-      cy.wait('@getAirQualityMonth');
-      cy.get('h1').should('contain.text', 'månaden');
-    });
-
-    it('should fetch year data when clicking År filter', () => {
+      cy.contains('button', 'Dygn').click();
+      cy.wait('@getAirQualityDay');
+      cy.contains('button', '4 dagar').click();
       cy.wait('@getAirQualityFourdays');
-      cy.contains('button', 'År').click();
-      cy.wait('@getAirQualityYear');
-      cy.get('h1').should('contain.text', 'året');
+      cy.get('h1').should('contain.text', '4 dagarna');
     });
 
     it('should display legend items for pollutants', () => {
