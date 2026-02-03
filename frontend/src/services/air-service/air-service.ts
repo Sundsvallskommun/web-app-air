@@ -5,9 +5,9 @@ import { __DEV__ } from '@sk-web-gui/react';
 import { ServiceResponse } from '@interfaces/services';
 import { AirQuality, AirQualityData } from '@interfaces/airquality/airquality';
 
-const getAirQuality: (filter: string) => Promise<ServiceResponse<AirQualityData>> = (filter) => {
+const getAirQuality: (filter: string, station: string) => Promise<ServiceResponse<AirQualityData>> = (filter, station) => {
   return apiService
-    .get<ApiResponse<AirQualityData>>(`/airquality/${filter}`)
+    .get<ApiResponse<AirQualityData>>(`/airquality/${filter}?station=${station}`)
     .then((res) => ({ data: res.data.data }))
     .catch((e) => ({
       message: e.response?.data.message,
@@ -20,13 +20,15 @@ interface State {
   airQualityIsLoading: boolean;
   airQualityError: string | null;
   filter: string;
+  station: string;
   cache: Record<string, AirQuality>;
 }
 
 interface Actions {
   setAirQuality: (airQuality: AirQuality) => void;
   setFilter: (filter: string) => Promise<ServiceResponse<AirQualityData>>;
-  getAirQuality: (filter: string) => Promise<ServiceResponse<AirQualityData>>;
+  setStation: (station: string) => Promise<ServiceResponse<AirQualityData>>;
+  getAirQuality: (filter: string, station?: string) => Promise<ServiceResponse<AirQualityData>>;
   reset: () => void;
 }
 
@@ -61,6 +63,7 @@ const initialState: State = {
   airQualityIsLoading: false,
   airQualityError: null,
   filter: 'fourdays',
+  station: '888100',
   cache: {},
 };
 
@@ -70,7 +73,9 @@ export const useAirStore = create<State & Actions>()(
       ...initialState,
       setAirQuality: (airQuality) => set(() => ({ airQuality, airQualityIsLoading: false, airQualityError: null })),
       setFilter(filter) {
-        const cachedData = get().cache[filter];
+        const station = get().station;
+        const cacheKey = `${station}:${filter}`;
+        const cachedData = get().cache[cacheKey];
         set(() => ({ filter, airQualityError: null }));
 
         if (cachedData) {
@@ -79,14 +84,14 @@ export const useAirStore = create<State & Actions>()(
         }
 
         set(() => ({ airQualityIsLoading: true }));
-        return getAirQuality(filter).then((res) => {
+        return getAirQuality(filter, station).then((res) => {
           if (!res.error && res.data) {
             const data = res.data.data;
             set((state) => ({
               airQuality: data,
               airQualityIsLoading: false,
               airQualityError: null,
-              cache: { ...state.cache, [filter]: data },
+              cache: { ...state.cache, [cacheKey]: data },
             }));
           } else {
             set(() => ({ airQualityIsLoading: false, airQualityError: getErrorMessage(res.error) }));
@@ -94,22 +99,51 @@ export const useAirStore = create<State & Actions>()(
           return res;
         });
       },
-      getAirQuality: async (filter) => {
-        const cachedData = get().cache[filter];
+      setStation(station) {
+        const filter = get().filter;
+        const cacheKey = `${station}:${filter}`;
+        const cachedData = get().cache[cacheKey];
+        set(() => ({ station, airQualityError: null }));
+
+        if (cachedData) {
+          set(() => ({ airQuality: cachedData }));
+          return Promise.resolve({ data: cachedData });
+        }
+
+        set(() => ({ airQualityIsLoading: true }));
+        return getAirQuality(filter, station).then((res) => {
+          if (!res.error && res.data) {
+            const data = res.data.data;
+            set((state) => ({
+              airQuality: data,
+              airQualityIsLoading: false,
+              airQualityError: null,
+              cache: { ...state.cache, [cacheKey]: data },
+            }));
+          } else {
+            set(() => ({ airQualityIsLoading: false, airQualityError: getErrorMessage(res.error) }));
+          }
+          return res;
+        });
+      },
+      getAirQuality: async (filter, stationOverride) => {
+        const station = stationOverride ?? get().station;
+        const cacheKey = `${station}:${filter}`;
+        const cachedData = get().cache[cacheKey];
         if (cachedData) {
           set(() => ({ airQuality: cachedData, airQualityError: null }));
           return { data: cachedData };
         }
 
         set(() => ({ airQualityIsLoading: true, airQualityError: null }));
-        const res = await getAirQuality(filter);
+        const res = await getAirQuality(filter, station);
         if (!res.error && res.data) {
           const data = res.data.data;
           set((state) => ({
             airQuality: data,
             airQualityIsLoading: false,
             airQualityError: null,
-            cache: { ...state.cache, [filter]: data },
+            cache: { ...state.cache, [cacheKey]: data },
           }));
           return { data };
         } else {

@@ -1,7 +1,7 @@
 import ApiService from '@/services/api.service';
 import { logger } from '@/utils/logger';
 import dayjs from 'dayjs';
-import { Controller, Get, Param } from 'routing-controllers';
+import { Controller, Get, Param, QueryParam } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
 
 const DATE_FORMAT = 'YYYY-MM-DD';
@@ -9,6 +9,13 @@ const TIME_SUFFIX = 'T07%3A00%3A00Z';
 
 // Set to true to use mock data instead of real API
 const USE_MOCK_DATA = process.env.NODE_ENV === 'development';
+
+// Station ID to URN mappings
+const STATION_URNS: Record<string, string> = {
+  '888100': 'urn:ngsi-ld:AirQualityObserved:888100', // Köpmangatan
+  '1098100': 'urn:ngsi-ld:AirQualityObserved:1098100', // Bergsgatan
+};
+const DEFAULT_STATION = '888100';
 
 const POLLUTANT_CONFIGS = [
   { name: 'PM1', baseValue: 5, variance: 3 },
@@ -24,7 +31,7 @@ const POLLUTANT_CONFIGS = [
   { name: 'AtmosphericPressure', baseValue: 1013, variance: 10 },
 ];
 
-function generateMockAirQuality(filter: string) {
+function generateMockAirQuality(filter: string, station: string) {
   const now = dayjs();
   const hoursMap: Record<string, number> = {
     day: 24,
@@ -54,7 +61,7 @@ function generateMockAirQuality(filter: string) {
         type: 'Property',
         value: now.toISOString(),
       },
-      id: 'urn:ngsi-ld:AirQualityObserved:mock-data',
+      id: STATION_URNS[station] || STATION_URNS[DEFAULT_STATION],
       location: {
         type: 'Point',
         coordinates: [17.3069, 62.3908],
@@ -70,10 +77,16 @@ export class AirController {
 
   @Get('/airquality/:filter')
   @OpenAPI({ summary: 'get quality report of air in Sundsvall' })
-  async getAirQualityReports(@Param('filter') filter: string): Promise<{ data; message: string }> {
+  async getAirQualityReports(
+    @Param('filter') filter: string,
+    @QueryParam('station') stationParam?: string
+  ): Promise<{ data; message: string }> {
+    // Validate station parameter, default to DEFAULT_STATION if invalid
+    const station = stationParam && STATION_URNS[stationParam] ? stationParam : DEFAULT_STATION;
+
     if (USE_MOCK_DATA) {
-      logger.info(`Using mock data for filter: ${filter}`);
-      return { data: generateMockAirQuality(filter), message: 'success' };
+      logger.info(`Using mock data for filter: ${filter}, station: ${station}`);
+      return { data: generateMockAirQuality(filter, station), message: 'success' };
     }
 
     const today = dayjs();
@@ -102,7 +115,9 @@ export class AirController {
         break;
     }
 
-    const url = `/opendata/1.0/airqualities/urn%3Angsi-ld%3AAirQualityObserved%3A888100${filterString}`;
+    // URL-encode the station URN
+    const encodedUrn = encodeURIComponent(STATION_URNS[station]);
+    const url = `/opendata/1.0/airqualities/${encodedUrn}${filterString}`;
     const res = await this.apiService.get({ url }).catch(e => {
       logger.error('Error when fetching air quality');
       throw e;

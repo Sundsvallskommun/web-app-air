@@ -1,10 +1,16 @@
 import { useAirStore } from '@services/air-service/air-service';
-import { Button } from '@sk-web-gui/react';
-import { useState } from 'react';
+import { Button, Select } from '@sk-web-gui/react';
+
+const stationOptions = [
+  { label: 'Köpmangatan', value: '888100' },
+  { label: 'Bergsgatan', value: '1098100' },
+];
 
 export const AirQualityFilter = () => {
   const filter = useAirStore((state) => state.filter);
   const setFilter = useAirStore((state) => state.setFilter);
+  const station = useAirStore((state) => state.station);
+  const setStation = useAirStore((state) => state.setStation);
   const filters = [
     // Commented out due to API limitation (max 100 data points)
     // Uncomment when API can return more data
@@ -34,9 +40,10 @@ export const AirQualityFilter = () => {
       value: 'day',
     },
   ];
-  const [currentFilter, setCurrentFilter] = useState<number>(filters.find((x) => x.value === filter)?.id ?? 0);
-  let filterHeading;
+  const currentFilterId = filters.find((x) => x.value === filter)?.id ?? 0;
+  const stationName = stationOptions.find((s) => s.value === station)?.label ?? 'Köpmangatan';
 
+  let filterHeading;
   switch (filter) {
     case 'day':
       filterHeading = 'senaste dygnet';
@@ -58,27 +65,42 @@ export const AirQualityFilter = () => {
   return (
     <div className="flex flex-wrap gap-16 justify-between items-center container">
       <div>
-        <h1 className="text-h2-sm">Luftkvalitet {filterHeading}</h1>
+        <h1 className="text-h2-sm">Luftkvalitet vid {stationName} {filterHeading}</h1>
       </div>
-      <div className="flex flex-wrap items-center">
-        <label className="sk-form-labl font-semibold mr-12 flex-none">Visa från senaste:</label>
-        <Button.Group>
-          {filters.map((item, idx) => {
-            return (
-              <Button
-                key={idx}
-                inverted={currentFilter === item.id}
-                variant={currentFilter === item.id ? 'primary' : 'tertiary'}
-                onClick={() => {
-                  setCurrentFilter(item.id);
-                  setFilter(item.value);
-                }}
-              >
-                {item.label}
-              </Button>
-            );
-          })}
-        </Button.Group>
+      <div className="flex flex-wrap items-center gap-16">
+        <div className="flex items-center">
+          <label className="sk-form-label font-semibold mr-12 flex-none">Mätstation:</label>
+          <Select
+            value={station}
+            onChange={(e) => setStation(e.target.value)}
+            data-testid="station-select"
+          >
+            {stationOptions.map((option) => (
+              <Select.Option key={option.value} value={option.value}>
+                {option.label}
+              </Select.Option>
+            ))}
+          </Select>
+        </div>
+        <div className="flex items-center">
+          <label className="sk-form-label font-semibold mr-12 flex-none">Visa från senaste:</label>
+          <Button.Group>
+            {filters.map((item, idx) => {
+              return (
+                <Button
+                  key={idx}
+                  inverted={currentFilterId === item.id}
+                  variant={currentFilterId === item.id ? 'primary' : 'tertiary'}
+                  onClick={() => {
+                    setFilter(item.value);
+                  }}
+                >
+                  {item.label}
+                </Button>
+              );
+            })}
+          </Button.Group>
+        </div>
       </div>
     </div>
   );
