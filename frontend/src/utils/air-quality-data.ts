@@ -48,7 +48,7 @@ export function groupByKey(
 
     group[key].push({
       value: v.value,
-      observedAt: key,
+      observedAt: v.observedAt,
       name: pollutantName,
     });
 
@@ -105,7 +105,7 @@ export function formatMonthLabel(date: dayjs.Dayjs): string {
  * Format date for display based on filter type
  */
 export function formatDisplayDate(observedAt: string, filter: string): string {
-  const date = dayjs(new Date(observedAt));
+  const date = dayjs(observedAt);
 
   switch (filter) {
     case 'fourdays':
