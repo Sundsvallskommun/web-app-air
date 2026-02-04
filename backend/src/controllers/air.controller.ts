@@ -1,30 +1,37 @@
 import ApiService from '@/services/api.service';
 import { logger } from '@/utils/logger';
 import dayjs from 'dayjs';
-import { Controller, Get, Param } from 'routing-controllers';
+import { Controller, Get, Param, QueryParam } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
 
 const DATE_FORMAT = 'YYYY-MM-DD';
 const TIME_SUFFIX = 'T07%3A00%3A00Z';
 
 // Set to true to use mock data instead of real API
-const USE_MOCK_DATA = process.env.NODE_ENV === 'development';
+const USE_MOCK_DATA = false; //process.env.NODE_ENV === 'development';
 
-const POLLUTANT_CONFIGS = [
-  { name: 'PM1', baseValue: 5, variance: 3 },
-  { name: 'PM25', baseValue: 10, variance: 5 },
-  { name: 'PM4', baseValue: 12, variance: 6 },
-  { name: 'PM10', baseValue: 20, variance: 10 },
-  { name: 'TotalSuspendedParticulate', baseValue: 25, variance: 12 },
-  { name: 'NO', baseValue: 15, variance: 8 },
-  { name: 'NO2', baseValue: 25, variance: 12 },
-  { name: 'NOx', baseValue: 40, variance: 20 },
-  { name: 'Temperature', baseValue: 10, variance: 8 },
-  { name: 'RelativeHumidity', baseValue: 60, variance: 20 },
-  { name: 'AtmosphericPressure', baseValue: 1013, variance: 10 },
-];
+const STATION_URNS: Record<string, string> = {
+  '888100': 'urn:ngsi-ld:AirQualityObserved:888100', // Köpmangatan
+  '1098100': 'urn:ngsi-ld:AirQualityObserved:1098100', // Bergsgatan
+};
+const DEFAULT_STATION = '888100';
 
-function generateMockAirQuality(filter: string) {
+// Station-specific allowed pollutants
+// Köpmangatan: PM10, PM2.5, NO2
+// Bergsgatan: PM10, PM2.5
+const STATION_ALLOWED_POLLUTANTS: Record<string, string[]> = {
+  '888100': ['PM25', 'PM10', 'NO2'], // Köpmangatan
+  '1098100': ['PM25', 'PM10'], // Bergsgatan
+};
+
+// Mock data configurations (baseValue and variance for generating test data)
+const POLLUTANT_MOCK_CONFIGS: Record<string, { baseValue: number; variance: number }> = {
+  PM25: { baseValue: 10, variance: 5 },
+  PM10: { baseValue: 20, variance: 10 },
+  NO2: { baseValue: 25, variance: 12 },
+};
+
+function generateMockAirQuality(filter: string, station: string) {
   const now = dayjs();
   const hoursMap: Record<string, number> = {
     day: 24,
@@ -40,13 +47,18 @@ function generateMockAirQuality(filter: string) {
     timestamps.push(now.subtract(i, 'hour').toISOString());
   }
 
-  const pollutants = POLLUTANT_CONFIGS.map(config => ({
-    name: config.name,
-    values: timestamps.map(timestamp => ({
-      value: Math.max(0, Math.round((config.baseValue + (Math.random() - 0.5) * 2 * config.variance) * 100) / 100),
-      observedAt: timestamp,
-    })),
-  }));
+  const allowedPollutants = STATION_ALLOWED_POLLUTANTS[station] || STATION_ALLOWED_POLLUTANTS[DEFAULT_STATION];
+
+  const pollutants = allowedPollutants.map(name => {
+    const config = POLLUTANT_MOCK_CONFIGS[name];
+    return {
+      name,
+      values: timestamps.map(timestamp => ({
+        value: Math.max(0, Math.round((config.baseValue + (Math.random() - 0.5) * 2 * config.variance) * 100) / 100),
+        observedAt: timestamp,
+      })),
+    };
+  });
 
   return {
     data: {
@@ -54,7 +66,7 @@ function generateMockAirQuality(filter: string) {
         type: 'Property',
         value: now.toISOString(),
       },
-      id: 'urn:ngsi-ld:AirQualityObserved:mock-data',
+      id: STATION_URNS[station] || STATION_URNS[DEFAULT_STATION],
       location: {
         type: 'Point',
         coordinates: [17.3069, 62.3908],
@@ -64,16 +76,32 @@ function generateMockAirQuality(filter: string) {
   };
 }
 
+function filterPollutantsByStation(data: any, station: string) {
+  const allowedPollutants = STATION_ALLOWED_POLLUTANTS[station] || STATION_ALLOWED_POLLUTANTS[DEFAULT_STATION];
+
+  if (data?.data?.pollutants) {
+    data.data.pollutants = data.data.pollutants.filter((p: { name: string }) => allowedPollutants.includes(p.name));
+  }
+
+  return data;
+}
+
 @Controller()
 export class AirController {
   private apiService = new ApiService();
 
   @Get('/airquality/:filter')
   @OpenAPI({ summary: 'get quality report of air in Sundsvall' })
-  async getAirQualityReports(@Param('filter') filter: string): Promise<{ data; message: string }> {
+  async getAirQualityReports(
+    @Param('filter') filter: string,
+    @QueryParam('station') stationParam?: string
+  ): Promise<{ data; message: string }> {
+    // Validate station parameter, default to DEFAULT_STATION if invalid
+    const station = stationParam && STATION_URNS[stationParam] ? stationParam : DEFAULT_STATION;
+
     if (USE_MOCK_DATA) {
-      logger.info(`Using mock data for filter: ${filter}`);
-      return { data: generateMockAirQuality(filter), message: 'success' };
+      logger.info(`Using mock data for filter: ${filter}, station: ${station}`);
+      return { data: generateMockAirQuality(filter, station), message: 'success' };
     }
 
     const today = dayjs();
@@ -102,11 +130,14 @@ export class AirController {
         break;
     }
 
-    const url = `/opendata/1.0/airqualities/urn%3Angsi-ld%3AAirQualityObserved%3A888100${filterString}`;
+    const encodedUrn = encodeURIComponent(STATION_URNS[station]);
+    const url = `/opendata/1.0/airqualities/${encodedUrn}${filterString}`;
     const res = await this.apiService.get({ url }).catch(e => {
       logger.error('Error when fetching air quality');
       throw e;
     });
-    return { data: res.data, message: 'success' };
+
+    const filteredData = filterPollutantsByStation(res.data, station);
+    return { data: filteredData, message: 'success' };
   }
 }

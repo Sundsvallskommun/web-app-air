@@ -25,16 +25,17 @@ export const PollutantType = {
   NOx: 'NOx (µg/m³)',
 };
 
+// Colors based on Wong palette for color-blind accessibility
 export const PollutantColor = {
-  AtmosphericPressure: 'purple',
-  Temperature: 'lightgreen',
-  RelativeHumidity: 'darkblue',
-  PM1: 'brown',
-  PM4: 'cyan',
-  PM10: 'grey',
-  PM25: 'black',
-  TotalSuspendedParticulate: 'red',
-  NO: 'orange',
-  NO2: 'darkgreen',
-  NOx: 'magenta',
+  AtmosphericPressure: '#CC79A7', // reddish purple
+  Temperature: '#009E73', // bluish green
+  RelativeHumidity: '#56B4E9', // sky blue
+  PM1: '#E69F00', // orange
+  PM4: '#F0E442', // yellow
+  PM10: '#0072B2', // blue
+  PM25: '#D55E00', // vermillion/orange-red
+  TotalSuspendedParticulate: '#CC79A7', // reddish purple
+  NO: '#F0E442', // yellow
+  NO2: '#009E73', // bluish green
+  NOx: '#56B4E9', // sky blue
 };
