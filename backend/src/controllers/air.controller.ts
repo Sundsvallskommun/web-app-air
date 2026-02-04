@@ -117,7 +117,7 @@ export class AirController {
         filterString = `?from=${today.subtract(1, 'day').format(DATE_FORMAT)}${currentTimeSuffix}&to=${todayFormatted}${currentTimeSuffix}`;
         break;
       case 'fourdays':
-        filterString = `?from=${today.subtract(4, 'day').format(DATE_FORMAT)}${currentTimeSuffix}&to=${todayFormatted}${currentTimeSuffix}`;
+        filterString = `?from=${today.subtract(4, 'day').startOf('day').toISOString()}&to=${today.startOf('day').toISOString()}`;
         break;
       case 'week':
         filterString = `?from=${today.subtract(7, 'day').format(DATE_FORMAT)}${TIME_SUFFIX}&to=${todayFormatted}${TIME_SUFFIX}`;
