@@ -1,5 +1,6 @@
 import { Pollutant } from '@interfaces/airquality/airquality';
 import { PollutantColor, PollutantType } from '@interfaces/pollutant/pollutant';
+import { formatAxisLabel, formatTooltipLabel } from '@utils/air-quality-data';
 import { formatValue } from '@utils/format-value';
 import React, { useMemo } from 'react';
 import {
@@ -13,6 +14,7 @@ import {
   Legend,
   ResponsiveContainer,
   Tooltip,
+  ReferenceLine,
 } from 'recharts';
 
 export type ChartType = 'line' | 'bar';
@@ -31,7 +33,8 @@ export const AirQualityGraph: React.FC<AirQualityGraphProps> = ({ graphData, cha
   const minValue = allValues.length > 0 ? Math.min(...allValues) : 0;
   const maxValue = allValues.length > 0 ? Math.max(...allValues) : 100;
   const padding = (maxValue - minValue) * 0.1 || 10;
-  const domain: [number, number] = [0, Math.ceil(maxValue + padding)];
+  const domainMax = Math.max(Math.ceil(maxValue + padding), 55);
+  const domain: [number, number] = [0, domainMax];
 
   const chartData = useMemo(() => {
     if (filteredData.length === 0) return [];
@@ -65,9 +68,9 @@ export const AirQualityGraph: React.FC<AirQualityGraphProps> = ({ graphData, cha
           {chartType === 'bar' ?
             <BarChart height={800} data={chartData} margin={chartMargin}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="observedAt" />
+              <XAxis dataKey="observedAt" interval={2} tickFormatter={formatAxisLabel} />
               <YAxis domain={domain} tickFormatter={(value: number) => formatValue(value)} />
-              <Tooltip formatter={(value: number) => formatValue(value)} />
+              <Tooltip formatter={(value: number) => formatValue(value)} labelFormatter={formatTooltipLabel} />
               <Legend height={100} />
               {filteredData.map((pollutant) => (
                 <Bar
@@ -76,12 +79,33 @@ export const AirQualityGraph: React.FC<AirQualityGraphProps> = ({ graphData, cha
                   key={pollutant.name}
                 />
               ))}
+              <ReferenceLine
+                y={30}
+                stroke="#666"
+                strokeDasharray="5 5"
+                label={{ value: 'Miljömål (30 µg/m³)', position: 'insideTopLeft', fill: '#666', fontSize: 12 }}
+              />
+              <ReferenceLine
+                y={50}
+                stroke="#666"
+                strokeDasharray="5 5"
+                label={{
+                  value: 'Nuvarande gränsvärde (50 µg/m³)',
+                  position: 'insideTopLeft',
+                  fill: '#666',
+                  fontSize: 12,
+                }}
+              />
             </BarChart>
           : <LineChart height={800} data={chartData} margin={chartMargin}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="observedAt" />
+              <XAxis
+                interval={2}
+                dataKey="observedAt"
+                tickFormatter={formatAxisLabel}
+              />
               <YAxis domain={domain} tickFormatter={(value: number) => formatValue(value)} />
-              <Tooltip formatter={(value: number) => formatValue(value)} />
+              <Tooltip formatter={(value: number) => formatValue(value)} labelFormatter={formatTooltipLabel} />
               <Legend height={100} />
               {filteredData.map((pollutant) => (
                 <Line
