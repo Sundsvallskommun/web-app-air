@@ -108,6 +108,7 @@ export function formatDisplayDate(observedAt: string, filter: string): string {
   const date = dayjs(new Date(observedAt));
 
   switch (filter) {
+    case 'fourdays':
     case 'week':
       return `${date.format('DD MMM')} (${getSwedishWeekday(date)})`;
     case 'month':
@@ -213,7 +214,7 @@ export function processPollutantData(
 } {
   const { values, name: pollutantName } = pollutant;
 
-  if (filter === 'day' || filter === 'fourdays') {
+  if (filter === 'day') {
     const hourValues: Value[] = values.map((v) => ({
       value: v.value,
       observedAt: formatHourLabel(dayjs(v.observedAt)),
