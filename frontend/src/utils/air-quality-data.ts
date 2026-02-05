@@ -48,7 +48,7 @@ export function groupByKey(
 
     group[key].push({
       value: v.value,
-      observedAt: key,
+      observedAt: v.observedAt,
       name: pollutantName,
     });
 
@@ -68,22 +68,24 @@ export function calculateGroupAverage(group: { value: number }[]): number {
  * Contains both time and date separated by | for parsing
  */
 export function formatHourLabel(date: dayjs.Dayjs): string {
-  return `${date.format('HH:mm')}|${date.format('YYYY-MM-DD')}`;
+  return `${date.format('YYYY-MM-DD')}|${date.format('HH:mm')}`;
 }
 
 /**
  * Format hour label for axis display (short): "HH:mm"
  */
 export function formatAxisLabel(label: string): string {
-  return label.split('|')[0];
+  const [date, time] = label.split('|');
+  if (!date || !time) return label;
+  return time;
 }
 
 /**
  * Format hour label for tooltip display (full): "YYYY-MM-DD kl HH:mm"
  */
 export function formatTooltipLabel(label: string): string {
-  const [time, date] = label.split('|');
-  if (!date) return label;
+  const [date, time] = label.split('|');
+  if (!date || !time) return label;
   return `${date} kl ${time}`;
 }
 
@@ -91,7 +93,7 @@ export function formatTooltipLabel(label: string): string {
  * Format date for week/month filter: "MMM DD"
  */
 export function formatDateLabel(date: dayjs.Dayjs): string {
-  return date.format('MMM DD');
+  return date.format('YYYY-MM-DD');
 }
 
 /**
@@ -105,9 +107,14 @@ export function formatMonthLabel(date: dayjs.Dayjs): string {
  * Format date for display based on filter type
  */
 export function formatDisplayDate(observedAt: string, filter: string): string {
-  const date = dayjs(new Date(observedAt));
+  if (filter === 'day') {
+    return formatTooltipLabel(observedAt);
+  }
+
+  const date = dayjs(observedAt);
 
   switch (filter) {
+    case 'fourdays':
     case 'week':
       return `${date.format('DD MMM')} (${getSwedishWeekday(date)})`;
     case 'month':
@@ -141,14 +148,13 @@ export function getPollutantLabel(name: string): string {
 }
 
 /**
- * Process grouped data into averaged values for graph and table
+ * Process grouped data into averaged values with raw pollutant names
  */
 export function processGroupedData(
   groupedData: GroupedData,
   keys: string[]
-): { cleaned: FlatDataItem[]; tableArr: FlatDataItem[] } {
-  const cleaned: FlatDataItem[] = [];
-  const tableArr: FlatDataItem[] = [];
+): FlatDataItem[] {
+  const result: FlatDataItem[] = [];
 
   keys.forEach((key) => {
     const group = groupedData[key];
@@ -156,26 +162,25 @@ export function processGroupedData(
       const averageValue = calculateGroupAverage(group);
       const firstItem = group[0];
 
-      cleaned.push({
+      result.push({
         value: averageValue,
         observedAt: firstItem.observedAt,
         name: firstItem.name,
       });
-
-      tableArr.push({
-        value: averageValue,
-        observedAt: firstItem.observedAt,
-        name: getPollutantLabel(firstItem.name),
-      });
     }
   });
 
-  return { cleaned, tableArr };
+  return result;
 }
 
 /**
  * Transform flat data to table format, grouping by observedAt date
  */
+
+export function nameToKey(name: string): string {
+  return name.replace(/\./g, '_');
+}
+
 export function transformToTableData(flatData: FlatDataItem[]): TableDataItem[] {
   const allDates: string[] = [];
 
@@ -190,7 +195,7 @@ export function transformToTableData(flatData: FlatDataItem[]): TableDataItem[] 
 
     flatData.forEach((f) => {
       if (f.observedAt === date && typeof f.value === 'number') {
-        pollutantValues[f.name] = f.value;
+        pollutantValues[nameToKey(f.name)] = f.value;
       }
     });
 
@@ -213,7 +218,7 @@ export function processPollutantData(
 } {
   const { values, name: pollutantName } = pollutant;
 
-  if (filter === 'day' || filter === 'fourdays') {
+  if (filter === 'day') {
     const hourValues: Value[] = values.map((v) => ({
       value: v.value,
       observedAt: formatHourLabel(dayjs(v.observedAt)),
@@ -239,10 +244,10 @@ export function processPollutantData(
 
   const groupedData = groupByKey(values, keyFn, pollutantName);
   const keys = getUniqueKeys(values, keyFn);
-  const { cleaned, tableArr } = processGroupedData(groupedData, keys);
+  const averaged = processGroupedData(groupedData, keys);
 
   // Format for graph display
-  const pollutantValues: Value[] = cleaned
+  const pollutantValues: Value[] = averaged
     .filter((c) => c.name === pollutantName)
     .map((c) => ({
       value: c.value,
@@ -250,8 +255,14 @@ export function processPollutantData(
     }))
     .sort((a, b) => new Date(a.observedAt).getTime() - new Date(b.observedAt).getTime());
 
+  // Translate pollutant names for table display
+  const tableData = averaged.map((item) => ({
+    ...item,
+    name: getPollutantLabel(item.name),
+  }));
+
   return {
     graphPollutant: { name: pollutantName, values: pollutantValues },
-    tableData: tableArr,
+    tableData,
   };
 }

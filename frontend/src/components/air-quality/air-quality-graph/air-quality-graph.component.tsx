@@ -68,7 +68,7 @@ export const AirQualityGraph: React.FC<AirQualityGraphProps> = ({ graphData, cha
           {chartType === 'bar' ?
             <BarChart height={800} data={chartData} margin={chartMargin}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="observedAt" interval={2} tickFormatter={formatAxisLabel} />
+              <XAxis dataKey="observedAt" interval={0} tickFormatter={formatAxisLabel} />
               <YAxis domain={domain} tickFormatter={(value: number) => formatValue(value)} />
               <Tooltip formatter={(value: number) => formatValue(value)} labelFormatter={formatTooltipLabel} />
               <Legend height={100} />
@@ -99,11 +99,7 @@ export const AirQualityGraph: React.FC<AirQualityGraphProps> = ({ graphData, cha
             </BarChart>
           : <LineChart height={800} data={chartData} margin={chartMargin}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis
-                interval={2}
-                dataKey="observedAt"
-                tickFormatter={formatAxisLabel}
-              />
+              <XAxis interval={0} dataKey="observedAt" tickFormatter={formatAxisLabel} />
               <YAxis domain={domain} tickFormatter={(value: number) => formatValue(value)} />
               <Tooltip formatter={(value: number) => formatValue(value)} labelFormatter={formatTooltipLabel} />
               <Legend height={100} />
