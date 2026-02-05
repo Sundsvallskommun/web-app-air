@@ -8,7 +8,7 @@ const DATE_FORMAT = 'YYYY-MM-DD';
 const TIME_SUFFIX = 'T07%3A00%3A00Z';
 
 // Set to true to use mock data instead of real API
-const USE_MOCK_DATA = false; //process.env.NODE_ENV === 'development';
+const USE_MOCK_DATA =false; //process.env.NODE_ENV === 'development';
 
 const STATION_URNS: Record<string, string> = {
   '888100': 'urn:ngsi-ld:AirQualityObserved:888100', // Köpmangatan
@@ -32,7 +32,7 @@ const POLLUTANT_MOCK_CONFIGS: Record<string, { baseValue: number; variance: numb
 };
 
 function generateMockAirQuality(filter: string, station: string) {
-  const now = dayjs();
+  const now = dayjs().minute(0).second(0).millisecond(0);
   const hoursMap: Record<string, number> = {
     day: 24,
     fourdays: 96,
@@ -138,6 +138,7 @@ export class AirController {
     });
 
     const filteredData = filterPollutantsByStation(res.data, station);
+    console.log('Filtered Data:', JSON.stringify(filteredData, null, 2));
     return { data: filteredData, message: 'success' };
   }
 }
