@@ -50,34 +50,10 @@ export const AirQualityFilter = () => {
     },
   ];
   const currentFilterId = filters.find((x) => x.value === filter)?.id ?? 0;
-  const stationName = stationOptions.find((s) => s.value === station)?.label ?? 'Köpmangatan';
-
-  let filterHeading;
-  switch (filter) {
-    case 'day':
-      filterHeading = 'senaste dygnet';
-      break;
-    case 'fourdays':
-      filterHeading = 'senaste 4 dagarna (dygnsmedelvärde)';
-      break;
-    case 'week':
-      filterHeading = 'senaste veckan';
-      break;
-    case 'month':
-      filterHeading = 'senaste månaden';
-      break;
-    case 'year':
-      filterHeading = 'senaste året';
-      break;
-  }
 
   return (
-    <div className="flex flex-wrap gap-16 justify-between items-center container">
-      <div>
-        <h1 className="text-h2-sm">Luftkvalitet vid {stationName} {filterHeading}</h1>
-      </div>
-      <div className="flex flex-wrap items-center gap-16">
-        <div className="flex items-center">
+    <div className="flex flex-wrap gap-16 items-center container">
+      <div className="flex items-center">
           <label className="sk-form-label font-semibold mr-12 flex-none">Mätstation:</label>
           <Select
             value={station}
@@ -130,7 +106,6 @@ export const AirQualityFilter = () => {
             })}
           </RadioButton.Group>
         </div>
-      </div>
     </div>
   );
 };
