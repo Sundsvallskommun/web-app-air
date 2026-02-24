@@ -1,5 +1,6 @@
 import { Pollutant } from '@interfaces/airquality/airquality';
 import { PollutantColor, PollutantType } from '@interfaces/pollutant/pollutant';
+import { ParameterGroup } from '@services/air-service/air-service';
 import { formatAxisLabel, formatTooltipLabel } from '@utils/air-quality-data';
 import { formatValue } from '@utils/format-value';
 import React, { useMemo } from 'react';
@@ -22,18 +23,40 @@ export type ChartType = 'line' | 'bar';
 interface AirQualityGraphProps {
   graphData: Pollutant[];
   chartType?: ChartType;
+  filter: string;
+  parameterGroup: ParameterGroup;
 }
 
 const HIDDEN_IN_GRAPH = ['AtmosphericPressure', 'RelativeHumidity', 'Temperature'];
 
-export const AirQualityGraph: React.FC<AirQualityGraphProps> = ({ graphData, chartType = 'line' }) => {
+// Norm line colors
+const PM_NORM_COLOR = '#666';
+const NO2_NORM_COLOR = '#009E73'; // Bluish green (matches NO2 pollutant color)
+
+export const AirQualityGraph: React.FC<AirQualityGraphProps> = ({
+  graphData,
+  chartType = 'line',
+  filter,
+  parameterGroup,
+}) => {
   const filteredData = graphData.filter((pollutant) => !HIDDEN_IN_GRAPH.includes(pollutant.name));
+
+  // Determine which norm lines to show based on filter and parameter group
+  const showPmNormLines = parameterGroup === 'pm' && filter === 'fourdays';
+  const showNo2DailyNorm = parameterGroup === 'no2' && filter === 'fourdays';
+  const showNo2HourlyNorm = parameterGroup === 'no2' && filter === 'day';
 
   const allValues = filteredData.flatMap((pollutant) => pollutant.values.map((v) => v.value));
   const minValue = allValues.length > 0 ? Math.min(...allValues) : 0;
   const maxValue = allValues.length > 0 ? Math.max(...allValues) : 100;
   const padding = (maxValue - minValue) * 0.1 || 10;
-  const domainMax = Math.max(Math.ceil(maxValue + padding), 55);
+
+  // Ensure domain includes norm lines when visible
+  let minDomainMax = 55; // Default for PM
+  if (showNo2DailyNorm) minDomainMax = 65; // Ensure 60 µg/m³ line is visible
+  if (showNo2HourlyNorm) minDomainMax = 95; // Ensure 90 µg/m³ line is visible
+
+  const domainMax = Math.max(Math.ceil(maxValue + padding), minDomainMax);
   const domain: [number, number] = [0, domainMax];
 
   const chartData = useMemo(() => {
@@ -79,23 +102,53 @@ export const AirQualityGraph: React.FC<AirQualityGraphProps> = ({ graphData, cha
                   key={pollutant.name}
                 />
               ))}
-              <ReferenceLine
-                y={30}
-                stroke="#666"
-                strokeDasharray="5 5"
-                label={{ value: 'Miljömål (30 µg/m³)', position: 'insideTopLeft', fill: '#666', fontSize: 12 }}
-              />
-              <ReferenceLine
-                y={50}
-                stroke="#666"
-                strokeDasharray="5 5"
-                label={{
-                  value: 'Nuvarande gränsvärde (50 µg/m³)',
-                  position: 'insideTopLeft',
-                  fill: '#666',
-                  fontSize: 12,
-                }}
-              />
+              {showPmNormLines && (
+                <>
+                  <ReferenceLine
+                    y={30}
+                    stroke={PM_NORM_COLOR}
+                    strokeDasharray="5 5"
+                    label={{ value: 'PM Miljömål (30 µg/m³)', position: 'insideTopLeft', fill: PM_NORM_COLOR, fontSize: 12 }}
+                  />
+                  <ReferenceLine
+                    y={50}
+                    stroke={PM_NORM_COLOR}
+                    strokeDasharray="5 5"
+                    label={{
+                      value: 'PM Gränsvärde (50 µg/m³)',
+                      position: 'insideTopLeft',
+                      fill: PM_NORM_COLOR,
+                      fontSize: 12,
+                    }}
+                  />
+                </>
+              )}
+              {showNo2DailyNorm && (
+                <ReferenceLine
+                  y={60}
+                  stroke={NO2_NORM_COLOR}
+                  strokeDasharray="5 5"
+                  label={{
+                    value: 'NO2 Dygnsmedelvärde (60 µg/m³)',
+                    position: 'insideTopLeft',
+                    fill: NO2_NORM_COLOR,
+                    fontSize: 12,
+                  }}
+                />
+              )}
+              {showNo2HourlyNorm && (
+                <ReferenceLine
+                  y={90}
+                  stroke={NO2_NORM_COLOR}
+                  strokeDasharray="5 5"
+                  label={{
+                    value: 'NO2 Timmedelvärde (90 µg/m³)',
+                    position: 'insideTopLeft',
+                    fill: NO2_NORM_COLOR,
+                    fontSize: 12,
+                  }}
+                />
+              )}
             </BarChart>
           : <LineChart height={800} data={chartData} margin={chartMargin}>
               <CartesianGrid strokeDasharray="3 3" />
@@ -111,6 +164,53 @@ export const AirQualityGraph: React.FC<AirQualityGraphProps> = ({ graphData, cha
                   key={pollutant.name}
                 />
               ))}
+              {showPmNormLines && (
+                <>
+                  <ReferenceLine
+                    y={30}
+                    stroke={PM_NORM_COLOR}
+                    strokeDasharray="5 5"
+                    label={{ value: 'PM Miljömål (30 µg/m³)', position: 'insideTopLeft', fill: PM_NORM_COLOR, fontSize: 12 }}
+                  />
+                  <ReferenceLine
+                    y={50}
+                    stroke={PM_NORM_COLOR}
+                    strokeDasharray="5 5"
+                    label={{
+                      value: 'PM Gränsvärde (50 µg/m³)',
+                      position: 'insideTopLeft',
+                      fill: PM_NORM_COLOR,
+                      fontSize: 12,
+                    }}
+                  />
+                </>
+              )}
+              {showNo2DailyNorm && (
+                <ReferenceLine
+                  y={60}
+                  stroke={NO2_NORM_COLOR}
+                  strokeDasharray="5 5"
+                  label={{
+                    value: 'NO2 Dygnsmedelvärde (60 µg/m³)',
+                    position: 'insideTopLeft',
+                    fill: NO2_NORM_COLOR,
+                    fontSize: 12,
+                  }}
+                />
+              )}
+              {showNo2HourlyNorm && (
+                <ReferenceLine
+                  y={90}
+                  stroke={NO2_NORM_COLOR}
+                  strokeDasharray="5 5"
+                  label={{
+                    value: 'NO2 Timmedelvärde (90 µg/m³)',
+                    position: 'insideTopLeft',
+                    fill: NO2_NORM_COLOR,
+                    fontSize: 12,
+                  }}
+                />
+              )}
             </LineChart>
           }
         </ResponsiveContainer>

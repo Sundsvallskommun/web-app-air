@@ -8,7 +8,7 @@ const DATE_FORMAT = 'YYYY-MM-DD';
 const TIME_SUFFIX = 'T07%3A00%3A00Z';
 
 // Set to true to use mock data instead of real API
-const USE_MOCK_DATA =false; //process.env.NODE_ENV === 'development';
+const USE_MOCK_DATA = process.env.NODE_ENV === 'development';
 
 const STATION_URNS: Record<string, string> = {
   '888100': 'urn:ngsi-ld:AirQualityObserved:888100', // Köpmangatan

@@ -65,7 +65,12 @@ export default function AirQualityComponent() {
       return (
         <>
           {(currentView === 'line' || currentView === 'bar') && (
-            <AirQualityGraph graphData={graphData} chartType={currentView} />
+            <AirQualityGraph
+              graphData={graphData}
+              chartType={currentView}
+              filter={filter}
+              parameterGroup={parameterGroup}
+            />
           )}
           {currentView === 'table' && (
             <div className="px-16">
