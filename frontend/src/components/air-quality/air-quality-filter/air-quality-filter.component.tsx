@@ -49,7 +49,7 @@ export const AirQualityFilter = () => {
       filterHeading = 'senaste dygnet';
       break;
     case 'fourdays':
-      filterHeading = 'senaste 4 dagarna';
+      filterHeading = 'senaste 4 dagarna (dygnsmedelvärde)';
       break;
     case 'week':
       filterHeading = 'senaste veckan';

@@ -1,7 +1,7 @@
 import { useAirStore } from '@services/air-service/air-service';
 import { AutoTable } from '@sk-web-gui/react';
+import { formatDisplayDate, nameToKey } from '@utils/air-quality-data';
 import { formatValue } from '@utils/format-value';
-import dayjs from 'dayjs';
 
 interface AirQualityTableProps {
   tableData: {
@@ -11,12 +11,11 @@ interface AirQualityTableProps {
 }
 
 export const AirQualityTable: React.FC<AirQualityTableProps> = ({ tableData, pollutantLabels }) => {
-  const weekDays = ['Mån', 'Tis', 'Ons', 'Tors', 'Fre', 'Lör', 'Sön'];
   const filter = useAirStore((s) => s.filter);
-  const PollutansLabels = pollutantLabels.map((p) => {
+  const pollutantColumns = pollutantLabels.map((p) => {
     return {
       label: p,
-      property: p,
+      property: nameToKey(p),
       isColumnSortable: false,
       renderColumn: (value: number | string) => <span>{formatValue(value)}</span>,
     };
@@ -29,25 +28,10 @@ export const AirQualityTable: React.FC<AirQualityTableProps> = ({ tableData, pol
       isColumnSortable: false,
       sticky: true,
       renderColumn: (value: string) => {
-        let dateString;
-        switch (filter) {
-          case 'week':
-            dateString = `${dayjs(new Date(value)).format('DD MMM')} (${weekDays[dayjs(new Date(value)).day() === 0 ? 6 : dayjs(new Date(value)).day() - 1]})`;
-            break;
-          case 'month':
-            dateString = `${dayjs(new Date(value)).format('DD MMM')}`;
-            break;
-          case 'year':
-            dateString = dayjs(new Date(value)).format('MMMM YYYY');
-            break;
-          default:
-            dateString = value;
-        }
-
-        return <span className="font-semibold">{dateString}</span>;
+        return <span className="font-semibold">{formatDisplayDate(value, filter)}</span>;
       },
     },
-    ...PollutansLabels,
+    ...pollutantColumns,
   ];
 
   return (
