@@ -15,12 +15,15 @@ const getAirQuality: (filter: string, station: string) => Promise<ServiceRespons
     }));
 };
 
+export type ParameterGroup = 'pm' | 'no2';
+
 interface State {
   airQuality: AirQuality;
   airQualityIsLoading: boolean;
   airQualityError: string | null;
   filter: string;
   station: string;
+  parameterGroup: ParameterGroup;
   cache: Record<string, AirQuality>;
 }
 
@@ -28,6 +31,7 @@ interface Actions {
   setAirQuality: (airQuality: AirQuality) => void;
   setFilter: (filter: string) => Promise<ServiceResponse<AirQualityData>>;
   setStation: (station: string) => Promise<ServiceResponse<AirQualityData>>;
+  setParameterGroup: (parameterGroup: ParameterGroup) => void;
   getAirQuality: (filter: string, station?: string) => Promise<ServiceResponse<AirQualityData>>;
   reset: () => void;
 }
@@ -80,6 +84,10 @@ async function fetchOrCache(
   return { error: res.error, message: errorMessage };
 }
 
+// Station IDs
+export const STATION_KOPMANGATAN = '888100';
+export const STATION_BERGSGATAN = '1098100';
+
 const initialState: State = {
   airQuality: {
     dateObserved: {
@@ -96,7 +104,8 @@ const initialState: State = {
   airQualityIsLoading: false,
   airQualityError: null,
   filter: 'fourdays',
-  station: '888100',
+  station: STATION_KOPMANGATAN,
+  parameterGroup: 'pm',
   cache: {},
 };
 
@@ -110,8 +119,13 @@ export const useAirStore = create<State & Actions>()(
         return fetchOrCache(filter, get().station, get, set);
       },
       setStation: (station) => {
-        set(() => ({ station }));
+        // Reset to PM when switching to Bergsgatan (NO2 not available there)
+        const parameterGroup = station === STATION_BERGSGATAN ? 'pm' : get().parameterGroup;
+        set(() => ({ station, parameterGroup }));
         return fetchOrCache(get().filter, station, get, set);
+      },
+      setParameterGroup: (parameterGroup) => {
+        set(() => ({ parameterGroup }));
       },
       getAirQuality: (filter, stationOverride) => {
         const station = stationOverride ?? get().station;

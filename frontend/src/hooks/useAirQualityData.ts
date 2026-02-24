@@ -7,6 +7,11 @@ import {
   FlatDataItem,
   TableDataItem,
 } from '@utils/air-quality-data';
+import { ParameterGroup } from '@services/air-service/air-service';
+
+// Pollutants to show for each parameter group
+const PM_POLLUTANTS = ['PM10', 'PM25'];
+const NO2_POLLUTANTS = ['NO2'];
 
 interface AirQualityDataResult {
   graphData: Pollutant[];
@@ -16,11 +21,12 @@ interface AirQualityDataResult {
 
 /**
  * Custom hook to transform raw air quality data into graph and table formats
- * based on the selected time filter
+ * based on the selected time filter and parameter group
  */
 export function useAirQualityData(
   airQuality: AirQuality | null,
-  filter: string
+  filter: string,
+  parameterGroup: ParameterGroup = 'pm'
 ): AirQualityDataResult {
   return useMemo(() => {
     if (!airQuality?.pollutants?.length) {
@@ -31,11 +37,16 @@ export function useAirQualityData(
       };
     }
 
+    // Filter pollutants based on selected parameter group
+    const allowedPollutants = parameterGroup === 'pm' ? PM_POLLUTANTS : NO2_POLLUTANTS;
+
     const graphData: Pollutant[] = [];
     const flatData: FlatDataItem[] = [];
     const pollutantLabels: string[] = [];
 
-    airQuality.pollutants.forEach((pollutant) => {
+    airQuality.pollutants
+      .filter((pollutant) => allowedPollutants.includes(pollutant.name))
+      .forEach((pollutant) => {
       // Collect pollutant labels
       const label = PollutantType[pollutant.name as keyof typeof PollutantType];
       if (label && !pollutantLabels.includes(label)) {
@@ -57,5 +68,5 @@ export function useAirQualityData(
       tableData,
       pollutantLabels,
     };
-  }, [airQuality, filter]); // Fixed: filter is now included in dependencies
+  }, [airQuality, filter, parameterGroup]);
 }

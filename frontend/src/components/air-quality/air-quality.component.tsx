@@ -20,12 +20,13 @@ export default function AirQualityComponent() {
   const airQualityIsLoading = useAirStore((state) => state.airQualityIsLoading);
   const airQualityError = useAirStore((state) => state.airQualityError);
   const filter = useAirStore((state) => state.filter);
+  const parameterGroup = useAirStore((state) => state.parameterGroup);
 
   const [currentView, setCurrentView] = useState<ViewType>('line');
   const [desktop, setDesktop] = useState(false);
   const toastMessage = useSnackbar();
 
-  const { graphData, tableData, pollutantLabels } = useAirQualityData(airQuality, filter);
+  const { graphData, tableData, pollutantLabels } = useAirQualityData(airQuality, filter, parameterGroup);
 
   useEffect(() => {
     if (airQualityError) {
