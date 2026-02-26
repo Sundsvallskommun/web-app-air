@@ -1,9 +1,14 @@
-import { useAirStore } from '@services/air-service/air-service';
-import { Button, Select } from '@sk-web-gui/react';
+import { useAirStore, STATION_KOPMANGATAN, STATION_BERGSGATAN, ParameterGroup } from '@services/air-service/air-service';
+import { Button, RadioButton, Select } from '@sk-web-gui/react';
 
 const stationOptions = [
-  { label: 'Köpmangatan', value: '888100' },
-  { label: 'Bergsgatan', value: '1098100' },
+  { label: 'Köpmangatan', value: STATION_KOPMANGATAN },
+  { label: 'Bergsgatan', value: STATION_BERGSGATAN },
+];
+
+const parameterOptions: { label: string; value: ParameterGroup; kopmangatanOnly?: boolean }[] = [
+  { label: 'PM10 & PM2.5', value: 'pm' },
+  { label: 'NO2', value: 'no2', kopmangatanOnly: true },
 ];
 
 export const AirQualityFilter = () => {
@@ -11,6 +16,10 @@ export const AirQualityFilter = () => {
   const setFilter = useAirStore((state) => state.setFilter);
   const station = useAirStore((state) => state.station);
   const setStation = useAirStore((state) => state.setStation);
+  const parameterGroup = useAirStore((state) => state.parameterGroup);
+  const setParameterGroup = useAirStore((state) => state.setParameterGroup);
+
+  const isKopmangatan = station === STATION_KOPMANGATAN;
   const filters = [
     // Commented out due to API limitation (max 100 data points)
     // Uncomment when API can return more data
@@ -41,34 +50,10 @@ export const AirQualityFilter = () => {
     },
   ];
   const currentFilterId = filters.find((x) => x.value === filter)?.id ?? 0;
-  const stationName = stationOptions.find((s) => s.value === station)?.label ?? 'Köpmangatan';
-
-  let filterHeading;
-  switch (filter) {
-    case 'day':
-      filterHeading = 'senaste dygnet';
-      break;
-    case 'fourdays':
-      filterHeading = 'senaste 4 dagarna (dygnsmedelvärde)';
-      break;
-    case 'week':
-      filterHeading = 'senaste veckan';
-      break;
-    case 'month':
-      filterHeading = 'senaste månaden';
-      break;
-    case 'year':
-      filterHeading = 'senaste året';
-      break;
-  }
 
   return (
-    <div className="flex flex-wrap gap-16 justify-between items-center container">
-      <div>
-        <h1 className="text-h2-sm">Luftkvalitet vid {stationName} {filterHeading}</h1>
-      </div>
-      <div className="flex flex-wrap items-center gap-16">
-        <div className="flex items-center">
+    <div className="flex flex-wrap gap-16 items-center container">
+      <div className="flex items-center">
           <label className="sk-form-label font-semibold mr-12 flex-none">Mätstation:</label>
           <Select
             value={station}
@@ -101,7 +86,26 @@ export const AirQualityFilter = () => {
             })}
           </Button.Group>
         </div>
-      </div>
+        <div className="flex items-center">
+          <label className="sk-form-label font-semibold mr-12 flex-none">Parameter:</label>
+          <RadioButton.Group inline>
+            {parameterOptions.map((option) => {
+              const isDisabled = option.kopmangatanOnly && !isKopmangatan;
+              return (
+                <RadioButton
+                  key={option.value}
+                  name="parameterGroup"
+                  value={option.value}
+                  checked={parameterGroup === option.value}
+                  disabled={isDisabled}
+                  onChange={() => setParameterGroup(option.value)}
+                >
+                  {option.label}
+                </RadioButton>
+              );
+            })}
+          </RadioButton.Group>
+        </div>
     </div>
   );
 };

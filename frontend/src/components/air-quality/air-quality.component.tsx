@@ -15,17 +15,35 @@ export interface IAirQualityTable {
 
 type ViewType = 'line' | 'bar' | 'table';
 
+const stationNames: Record<string, string> = {
+  '888100': 'Köpmangatan',
+  '1098100': 'Bergsgatan',
+};
+
+const filterHeadings: Record<string, string> = {
+  day: 'senaste dygnet',
+  fourdays: 'senaste 4 dagarna (dygnsmedelvärde)',
+  week: 'senaste veckan',
+  month: 'senaste månaden',
+  year: 'senaste året',
+};
+
 export default function AirQualityComponent() {
   const airQuality = useAirStore((state) => state.airQuality);
   const airQualityIsLoading = useAirStore((state) => state.airQualityIsLoading);
   const airQualityError = useAirStore((state) => state.airQualityError);
   const filter = useAirStore((state) => state.filter);
+  const parameterGroup = useAirStore((state) => state.parameterGroup);
+  const station = useAirStore((state) => state.station);
+
+  const stationName = stationNames[station] ?? 'Köpmangatan';
+  const filterHeading = filterHeadings[filter] ?? '';
 
   const [currentView, setCurrentView] = useState<ViewType>('line');
   const [desktop, setDesktop] = useState(false);
   const toastMessage = useSnackbar();
 
-  const { graphData, tableData, pollutantLabels } = useAirQualityData(airQuality, filter);
+  const { graphData, tableData, pollutantLabels } = useAirQualityData(airQuality, filter, parameterGroup);
 
   useEffect(() => {
     if (airQualityError) {
@@ -64,7 +82,12 @@ export default function AirQualityComponent() {
       return (
         <>
           {(currentView === 'line' || currentView === 'bar') && (
-            <AirQualityGraph graphData={graphData} chartType={currentView} />
+            <AirQualityGraph
+              graphData={graphData}
+              chartType={currentView}
+              filter={filter}
+              parameterGroup={parameterGroup}
+            />
           )}
           {currentView === 'table' && (
             <div className="px-16">
@@ -87,7 +110,8 @@ export default function AirQualityComponent() {
       <div className="w-full">
         {desktop && (
           <>
-            <div className="container flex justify-end">
+            <div className="container flex justify-between items-center">
+              <h1 className="text-h2-sm">Luftkvalitet vid {stationName} {filterHeading}</h1>
               <NavigationBar current={viewIndex}>
                 <NavigationBar.Item>
                   <Button
@@ -117,6 +141,11 @@ export default function AirQualityComponent() {
             </div>
             <Divider className="my-16" />
           </>
+        )}
+        {!desktop && (
+          <div className="container mb-16">
+            <h1 className="text-h2-sm">Luftkvalitet vid {stationName} {filterHeading}</h1>
+          </div>
         )}
         <AirQualityFilter />
         {renderContent()}
