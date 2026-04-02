@@ -35,7 +35,7 @@
     "@sk-web-gui/lucide-icon": "^1.1.2",
     "@sk-web-gui/react": "3.0.6",
     "@tailwindcss/forms": "^0.5.10",
-    "axios": "^1.8.4",
+    "axios": "^1.12.0",
     "dayjs": "^1.11.13",
     "i18next": "^24.2.3",
     "i18next-resources-to-backend": "^1.2.1",
