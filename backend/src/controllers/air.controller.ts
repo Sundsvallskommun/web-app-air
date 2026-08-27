@@ -94,7 +94,7 @@ export class AirController {
   @OpenAPI({ summary: 'get quality report of air in Sundsvall' })
   async getAirQualityReports(
     @Param('filter') filter: string,
-    @QueryParam('station') stationParam?: string
+    @QueryParam('station') stationParam?: string,
   ): Promise<{ data; message: string }> {
     // Validate station parameter, default to DEFAULT_STATION if invalid
     const station = stationParam && STATION_URNS[stationParam] ? stationParam : DEFAULT_STATION;

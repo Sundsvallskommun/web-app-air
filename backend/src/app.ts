@@ -1,8 +1,17 @@
-import { APP_NAME, BASE_URL_PREFIX, CREDENTIALS, LOG_FORMAT, NODE_ENV, ORIGIN, PORT, SECRET_KEY, SESSION_MEMORY, SWAGGER_ENABLED } from '@config';
+import {
+  APP_NAME,
+  BASE_URL_PREFIX,
+  CREDENTIALS,
+  LOG_FORMAT,
+  NODE_ENV,
+  ORIGIN,
+  PORT,
+  SECRET_KEY,
+  SESSION_MEMORY,
+  SWAGGER_ENABLED,
+} from '@config';
 import errorMiddleware from '@middlewares/error.middleware';
-import { Strategy, VerifiedCallback } from '@node-saml/passport-saml';
 import { logger, stream } from '@utils/logger';
-import bodyParser from 'body-parser';
 import { defaultMetadataStorage } from 'class-transformer/cjs/storage';
 import { validationMetadatasToSchemas } from 'class-validator-jsonschema';
 import compression from 'compression';
@@ -22,19 +31,16 @@ import { getMetadataArgsStorage, useExpressServer } from 'routing-controllers';
 import { routingControllersToSpec } from 'routing-controllers-openapi';
 import createFileStore from 'session-file-store';
 import swaggerUi from 'swagger-ui-express';
-import { HttpException } from './exceptions/HttpException';
-import { Profile } from './interfaces/profile.interface';
-import { User } from './interfaces/users.interface';
-import { additionalConverters } from './utils/custom-validation-classes';
-import { isValidOrigin } from './utils/isValidOrigin';
-import { isValidUrl } from './utils/util';
+import { additionalConverters } from '@utils/custom-validation-classes';
 
 const corsWhitelist = ORIGIN.split(',');
 
 const SessionStoreCreate = SESSION_MEMORY ? createMemoryStore(session) : createFileStore(session);
 const sessionTTL = 4 * 24 * 60 * 60;
 // NOTE: memory uses ms while file uses seconds
-const sessionStore = new SessionStoreCreate(SESSION_MEMORY ? { checkPeriod: sessionTTL * 1000 } : { sessionTTL, path: './data/sessions' });
+const sessionStore = new SessionStoreCreate(
+  SESSION_MEMORY ? { checkPeriod: sessionTTL * 1000 } : { sessionTTL, path: './data/sessions' },
+);
 
 // const prisma = new PrismaClient();
 // const apiService = new ApiService();
@@ -128,7 +134,7 @@ class App {
   public port: string | number;
   public swaggerEnabled: boolean;
 
-  constructor(Controllers: Function[]) {
+  constructor(Controllers: NewableFunction[]) {
     this.app = express();
     this.env = NODE_ENV || 'development';
     this.port = PORT || 3000;
@@ -330,7 +336,7 @@ class App {
     //   });
   }
 
-  private initializeRoutes(controllers: Function[]) {
+  private initializeRoutes(controllers: NewableFunction[]) {
     useExpressServer(this.app, {
       routePrefix: BASE_URL_PREFIX,
       controllers: controllers,
@@ -338,7 +344,7 @@ class App {
     });
   }
 
-  private initializeSwagger(controllers: Function[]) {
+  private initializeSwagger(controllers: NewableFunction[]) {
     const schemas = validationMetadatasToSchemas({
       classTransformerMetadataStorage: defaultMetadataStorage,
       refPointerPrefix: '#/components/schemas/',
