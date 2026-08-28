@@ -1,5 +1,6 @@
 import { useAirStore } from '@services/air-service/air-service';
-import { Button, Divider, NavigationBar, Spinner, useSnackbar } from '@sk-web-gui/react';
+import { Button, Divider, NavigationBar, Spinner } from '@sk-web-gui/react';
+import { useSnackbar } from '@utils/use-snackbar';
 import { useEffect, useState } from 'react';
 import { AirQualityGraph } from './air-quality-graph/air-quality-graph.component';
 import { AirQualityTable } from './air-quality-table/air-quality-table.component';

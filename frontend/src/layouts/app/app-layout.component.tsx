@@ -10,7 +10,7 @@ import { useLocalStorage } from '@utils/use-localstorage.hook';
 import { useShallow } from 'zustand/react/shallow';
 import LoaderFullScreen from '@components/loader/loader-fullscreen';
 import { useAirStore } from '@services/air-service/air-service';
-import { useSnackbar } from '@sk-web-gui/react';
+import { useSnackbar } from '@utils/use-snackbar';
 
 dayjs.extend(utc);
 dayjs.locale('sv');

@@ -1,20 +1,16 @@
-import { dirname } from 'path';
-import { fileURLToPath } from 'url';
 import js from '@eslint/js';
-import { FlatCompat } from '@eslint/eslintrc';
+import nextCoreWebVitals from 'eslint-config-next/core-web-vitals';
+import nextTypescript from 'eslint-config-next/typescript';
 import reactRefresh from 'eslint-plugin-react-refresh';
 import globals from 'globals';
-
-const compat = new FlatCompat({
-  baseDirectory: dirname(fileURLToPath(import.meta.url)),
-});
 
 const config = [
   {
     ignores: ['.next/**', '**/dist/**', 'coverage/**', '**/*.jsx', '**/*.d.ts', 'src/data-contracts/**'],
   },
   js.configs.recommended,
-  ...compat.extends('next/core-web-vitals', 'next/typescript'),
+  ...nextCoreWebVitals,
+  ...nextTypescript,
   {
     plugins: {
       'react-refresh': reactRefresh,
@@ -32,6 +28,7 @@ const config = [
         { allowExportNames: ['generateMetadata', 'generateStaticParams'] },
       ],
       '@typescript-eslint/no-explicit-any': 'error',
+      'react-hooks/set-state-in-effect': 'off',
     },
   },
 ];
