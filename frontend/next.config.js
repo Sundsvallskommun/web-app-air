@@ -25,7 +25,7 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
 module.exports = withBundleAnalyzer({
   output: 'standalone',
   images: {
-    domains: [process.env.DOMAIN_NAME],
+    remotePatterns: process.env.DOMAIN_NAME ? [{ protocol: 'https', hostname: process.env.DOMAIN_NAME }] : [],
     formats: ['image/avif', 'image/webp'],
   },
   basePath: process.env.BASE_PATH,
@@ -34,8 +34,10 @@ module.exports = withBundleAnalyzer({
   },
   transpilePackages: ['lucide-react'],
   experimental: {
-    forceSwcTransforms: process.env.TEST === 'true' ? false : true,
-    optimizePackageImports: ['@sk-web-gui'],
+    optimizePackageImports: ['@sk-web-gui/core', '@sk-web-gui/react'],
+  },
+  turbopack: {
+    root: __dirname,
   },
   async rewrites() {
     return [{ source: '/napi/:path*', destination: '/api/:path*' }];

@@ -1,5 +1,6 @@
 import { useAirStore } from '@services/air-service/air-service';
-import { Button, Divider, NavigationBar, Spinner, useSnackbar } from '@sk-web-gui/react';
+import { Button, Divider, NavigationBar, Spinner } from '@sk-web-gui/react';
+import { useSnackbar } from '@utils/use-snackbar';
 import { useEffect, useState } from 'react';
 import { AirQualityGraph } from './air-quality-graph/air-quality-graph.component';
 import { AirQualityTable } from './air-quality-table/air-quality-table.component';
@@ -54,7 +55,10 @@ export default function AirQualityComponent() {
     }
   }, [airQualityError, toastMessage]);
 
-  const viewIndex = currentView === 'line' ? 0 : currentView === 'bar' ? 1 : 2;
+  const viewIndex =
+    currentView === 'line' ? 0
+    : currentView === 'bar' ? 1
+    : 2;
 
   useEffect(() => {
     const handleResize = () => {
@@ -90,7 +94,7 @@ export default function AirQualityComponent() {
             />
           )}
           {currentView === 'table' && (
-            <div className="px-16">
+            <div className="px-16 pb-40">
               <AirQualityTable tableData={tableData} pollutantLabels={pollutantLabels} />
             </div>
           )}
@@ -99,7 +103,7 @@ export default function AirQualityComponent() {
     }
 
     return (
-      <div className="px-16">
+      <div className="px-16 pb-24">
         <AirQualityTable tableData={tableData} pollutantLabels={pollutantLabels} />
       </div>
     );
@@ -111,29 +115,22 @@ export default function AirQualityComponent() {
         {desktop && (
           <>
             <div className="container flex justify-between items-center">
-              <h1 className="text-h2-sm">Luftkvalitet vid {stationName} {filterHeading}</h1>
+              <h1 className="text-h2-sm">
+                Luftkvalitet vid {stationName} {filterHeading}
+              </h1>
               <NavigationBar current={viewIndex}>
                 <NavigationBar.Item>
-                  <Button
-                    leftIcon={<LucideIcon name="chart-line" />}
-                    onClick={() => setCurrentView('line')}
-                  >
+                  <Button leftIcon={<LucideIcon name="chart-line" />} onClick={() => setCurrentView('line')}>
                     Linjediagram
                   </Button>
                 </NavigationBar.Item>
                 <NavigationBar.Item>
-                  <Button
-                    leftIcon={<LucideIcon name="chart-column" />}
-                    onClick={() => setCurrentView('bar')}
-                  >
+                  <Button leftIcon={<LucideIcon name="chart-column" />} onClick={() => setCurrentView('bar')}>
                     Stapeldiagram
                   </Button>
                 </NavigationBar.Item>
                 <NavigationBar.Item>
-                  <Button
-                    leftIcon={<LucideIcon name="table" />}
-                    onClick={() => setCurrentView('table')}
-                  >
+                  <Button leftIcon={<LucideIcon name="table" />} onClick={() => setCurrentView('table')}>
                     Tabell
                   </Button>
                 </NavigationBar.Item>
@@ -144,7 +141,9 @@ export default function AirQualityComponent() {
         )}
         {!desktop && (
           <div className="container mb-16">
-            <h1 className="text-h2-sm">Luftkvalitet vid {stationName} {filterHeading}</h1>
+            <h1 className="text-h2-sm">
+              Luftkvalitet vid {stationName} {filterHeading}
+            </h1>
           </div>
         )}
         <AirQualityFilter />

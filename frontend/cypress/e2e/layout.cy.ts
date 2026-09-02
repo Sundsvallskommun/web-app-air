@@ -4,7 +4,7 @@ describe('Layout', () => {
   });
 
   it('Set focus to main', () => {
-    cy.get('h1').should('contain.text', 'Välkommen');
+    cy.get('h1').should('contain.text', 'Luftkvalitet');
     cy.contains('a', 'Hoppa till innehåll').then(($link) => {
       cy.wrap($link).focus().click({ force: true }); // trigger key Enter seem not to work
     });

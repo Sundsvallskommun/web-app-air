@@ -1,6 +1,5 @@
 import { LocalStorage } from '@interfaces/localstorage';
 import { ColorSchemeMode } from '@sk-web-gui/react';
-import 'dotenv';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 

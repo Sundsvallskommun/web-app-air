@@ -1,5 +1,4 @@
 import { HttpException } from '@exceptions/HttpException';
-import { User } from '@interfaces/users.interface';
 import { logger } from '@utils/logger';
 import { apiURL } from '@utils/util';
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from 'axios';
@@ -77,13 +76,15 @@ class ApiService {
         if (response.headers.location && !response.config.url.includes('messaging')) {
           logger.info(`Response contained location header: ${response.headers.location}`);
           logger.info(`Base URL was: ${response.config.baseURL}`);
-          return axios.get(response.headers.location, { baseURL: response.config.baseURL, headers: defaultHeaders }).catch(e => {
-            logger.error(`Error in location header request: ${e.details}`);
-            logger.error(`Base URL was: ${e.config?.baseURL}`);
-            logger.error(`URL was: ${e.config?.url}`);
-            logger.error(`Method was: ${e.config?.method}`);
-            return Promise.resolve(response);
-          });
+          return axios
+            .get(response.headers.location, { baseURL: response.config.baseURL, headers: defaultHeaders })
+            .catch(e => {
+              logger.error(`Error in location header request: ${e.details}`);
+              logger.error(`Base URL was: ${e.config?.baseURL}`);
+              logger.error(`URL was: ${e.config?.url}`);
+              logger.error(`Method was: ${e.config?.method}`);
+              return Promise.resolve(response);
+            });
         }
         return Promise.resolve(response);
       },
@@ -130,40 +131,46 @@ class ApiService {
     // If we get here, all retries failed or we hit a non-retryable error
     const error = lastError;
     if (axios.isAxiosError(error)) {
-        const axiosError = error as AxiosError;
+      const axiosError = error as AxiosError;
 
-        // Handle timeout errors
-        if (axiosError.code === 'ECONNABORTED' || axiosError.code === 'ETIMEDOUT') {
-          logger.error(`ERROR: API request timed out after ${API_TIMEOUT_MS}ms (${MAX_RETRIES + 1} attempts)`);
-          logger.error(`Error url: ${axiosError.config?.baseURL || ''}${axiosError.config?.url}`);
-          throw new HttpException(504, 'Gateway timeout - external API took too long to respond');
-        }
+      // Handle timeout errors
+      if (axiosError.code === 'ECONNABORTED' || axiosError.code === 'ETIMEDOUT') {
+        logger.error(`ERROR: API request timed out after ${API_TIMEOUT_MS}ms (${MAX_RETRIES + 1} attempts)`);
+        logger.error(`Error url: ${axiosError.config?.baseURL || ''}${axiosError.config?.url}`);
+        throw new HttpException(504, 'Gateway timeout - external API took too long to respond');
+      }
 
-        // Handle connection errors (socket hangup, etc.)
-        if (axiosError.code === 'ECONNRESET' || axiosError.code === 'ECONNREFUSED' || axiosError.message?.includes('socket hang up')) {
-          logger.error(`ERROR: API connection error after ${MAX_RETRIES + 1} attempts: ${axiosError.code || axiosError.message}`);
-          logger.error(`Error url: ${axiosError.config?.baseURL || ''}${axiosError.config?.url}`);
-          throw new HttpException(502, 'Bad gateway - external API connection failed');
-        }
+      // Handle connection errors (socket hangup, etc.)
+      if (
+        axiosError.code === 'ECONNRESET' ||
+        axiosError.code === 'ECONNREFUSED' ||
+        axiosError.message?.includes('socket hang up')
+      ) {
+        logger.error(
+          `ERROR: API connection error after ${MAX_RETRIES + 1} attempts: ${axiosError.code || axiosError.message}`,
+        );
+        logger.error(`Error url: ${axiosError.config?.baseURL || ''}${axiosError.config?.url}`);
+        throw new HttpException(502, 'Bad gateway - external API connection failed');
+      }
 
-        // Handle 404
-        if (axiosError.response?.status === 404) {
-          logger.error(`ERROR: API request failed with status: ${axiosError.response?.status}`);
-          logger.error(`Error details: ${JSON.stringify(axiosError.response.data)}`);
-          logger.error(`Error url: ${axiosError.response.config.baseURL || ''}/${axiosError.response.config.url}`);
-          logger.error(`Error data: ${axiosError.response.config.data?.slice(0, 1500)}`);
-          logger.error(`Error method: ${axiosError.response.config.method}`);
-          throw new HttpException(404, 'Not found');
-        }
+      // Handle 404
+      if (axiosError.response?.status === 404) {
+        logger.error(`ERROR: API request failed with status: ${axiosError.response?.status}`);
+        logger.error(`Error details: ${JSON.stringify(axiosError.response.data)}`);
+        logger.error(`Error url: ${axiosError.response.config.baseURL || ''}/${axiosError.response.config.url}`);
+        logger.error(`Error data: ${axiosError.response.config.data?.slice(0, 1500)}`);
+        logger.error(`Error method: ${axiosError.response.config.method}`);
+        throw new HttpException(404, 'Not found');
+      }
 
-        // Handle other response errors
-        if (axiosError.response?.data) {
-          logger.error(`ERROR: API request failed with status: ${axiosError.response?.status}`);
-          logger.error(`Error details: ${JSON.stringify(axiosError.response.data)}`);
-          logger.error(`Error url: ${axiosError.response.config.baseURL || ''}/${axiosError.response.config.url}`);
-          logger.error(`Error data: ${axiosError.response.config.data?.slice(0, 1500)}`);
-          logger.error(`Error method: ${axiosError.response.config.method}`);
-        }
+      // Handle other response errors
+      if (axiosError.response?.data) {
+        logger.error(`ERROR: API request failed with status: ${axiosError.response?.status}`);
+        logger.error(`Error details: ${JSON.stringify(axiosError.response.data)}`);
+        logger.error(`Error url: ${axiosError.response.config.baseURL || ''}/${axiosError.response.config.url}`);
+        logger.error(`Error data: ${axiosError.response.config.data?.slice(0, 1500)}`);
+        logger.error(`Error method: ${axiosError.response.config.method}`);
+      }
     } else {
       logger.error(`Unknown error after ${MAX_RETRIES + 1} attempts: ${error}`);
     }

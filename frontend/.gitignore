@@ -18,6 +18,7 @@ babel.config.js
 # production
 /build
 tsconfig.tsbuildinfo
+next-env.d.ts
 
 # quirks
 # middleware envs needs to be generated for edge runtime to work
@@ -44,5 +45,3 @@ yarn-error.log*
 
 # vercel
 .vercel
-.npmrc
-.yarnrc

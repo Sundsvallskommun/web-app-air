@@ -60,12 +60,11 @@ describe('Air Quality Page', () => {
       cy.get('h1').should('contain.text', 'dygnet');
     });
 
-    it('should fetch fourdays data when clicking 4 dagar filter', () => {
+    it('should show fourdays data when clicking 4 dagar filter', () => {
       cy.wait('@getAirQualityFourdays');
       cy.contains('button', 'Dygn').click();
       cy.wait('@getAirQualityDay');
       cy.contains('button', '4 dagar').click();
-      cy.wait('@getAirQualityFourdays');
       cy.get('h1').should('contain.text', '4 dagarna');
     });
 

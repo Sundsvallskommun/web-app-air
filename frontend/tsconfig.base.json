@@ -18,23 +18,22 @@
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "jsx": "preserve",
+    "jsx": "react-jsx",
     "incremental": true,
-    "baseUrl": "./",
     "paths": {
-      "@app/*": ["src/app/*"],
-      "@services/*": ["src/services/*"],
-      "@components/*": ["src/components/*"],
-      "@interfaces/*": ["src/interfaces/*"],
-      "@contexts/*": ["src/contexts/*"],
-      "@layouts/*": ["src/layouts/*"],
-      "@styles/*": ["src/styles/*"],
-      "@utils/*": ["src/utils/*"],
-      "@hooks/*": ["src/hooks/*"],
-      "@middlewares/*": ["src/utils/middlewares/*"],
-      "@public/*": ["public/*"],
-      "@jestRoot/*": ["jest/*"],
-      "@data-contracts/*": ["src/data-contracts/*"]
+      "@app/*": ["./src/app/*"],
+      "@services/*": ["./src/services/*"],
+      "@components/*": ["./src/components/*"],
+      "@interfaces/*": ["./src/interfaces/*"],
+      "@contexts/*": ["./src/contexts/*"],
+      "@layouts/*": ["./src/layouts/*"],
+      "@styles/*": ["./src/styles/*"],
+      "@utils/*": ["./src/utils/*"],
+      "@hooks/*": ["./src/hooks/*"],
+      "@middlewares/*": ["./src/utils/middlewares/*"],
+      "@public/*": ["./public/*"],
+      "@jestRoot/*": ["./jest/*"],
+      "@data-contracts/*": ["./src/data-contracts/*"]
     }
   }
 }
