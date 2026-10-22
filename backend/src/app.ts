@@ -42,7 +42,6 @@ const sessionStore = new SessionStoreCreate(
   SESSION_MEMORY ? { checkPeriod: sessionTTL * 1000 } : { sessionTTL, path: './data/sessions' },
 );
 
-// const prisma = new PrismaClient();
 // const apiService = new ApiService();
 
 passport.serializeUser(function (user, done) {
@@ -359,7 +358,7 @@ class App {
     const storage = getMetadataArgsStorage();
     const spec = routingControllersToSpec(storage, routingControllersOptions, {
       components: {
-        schemas: schemas as { [schema: string]: unknown },
+        schemas: schemas,
         securitySchemes: {
           basicAuth: {
             scheme: 'basic',

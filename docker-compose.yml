@@ -8,7 +8,6 @@ services:
     container_name: ${COMPOSE_PROJECT_NAME}-backend-${NODE_ENV}
     volumes:
       - data:/app/data
-      #- database:/app/database
       #- sessions:/app/sessions
       #- logs:/app/src/logs
     network_mode: bridge
@@ -21,6 +20,5 @@ services:
     network_mode: bridge
 volumes:
   data:
-  #database:
   #sessions:
   #logs:
