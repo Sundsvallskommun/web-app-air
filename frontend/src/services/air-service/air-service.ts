@@ -29,10 +29,10 @@ interface State {
 
 interface Actions {
   setAirQuality: (airQuality: AirQuality) => void;
-  setFilter: (filter: string) => Promise<ServiceResponse<AirQualityData>>;
-  setStation: (station: string) => Promise<ServiceResponse<AirQualityData>>;
+  setFilter: (filter: string) => Promise<ServiceResponse<AirQuality>>;
+  setStation: (station: string) => Promise<ServiceResponse<AirQuality>>;
   setParameterGroup: (parameterGroup: ParameterGroup) => void;
-  getAirQuality: (filter: string, station?: string) => Promise<ServiceResponse<AirQualityData>>;
+  getAirQuality: (filter: string, station?: string) => Promise<ServiceResponse<AirQuality>>;
   reset: () => void;
 }
 
@@ -56,7 +56,7 @@ async function fetchOrCache(
   station: string,
   get: () => State & Actions,
   set: (partial: Partial<State> | ((state: State & Actions) => Partial<State>)) => void
-) {
+): Promise<ServiceResponse<AirQuality>> {
   const cacheKey = `${station}:${filter}`;
   const cachedData = get().cache[cacheKey];
 
