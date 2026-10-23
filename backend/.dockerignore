@@ -16,3 +16,11 @@ jest.config.js
 # docker
 Dockerfile
 docker-compose.yml
+
+# local environment and runtime data (never bake into the image)
+.env
+.env.*.local
+.env.local
+data
+dist
+src/tests
