@@ -27,6 +27,10 @@ interface AirQualityGraphProps {
   parameterGroup: ParameterGroup;
 }
 
+const formatTooltipValue = (value: unknown): string =>
+  typeof value === 'number' || typeof value === 'string' ? formatValue(value) : String(value);
+const formatTooltipLabelNode = (label: unknown): string => formatTooltipLabel(String(label));
+
 const HIDDEN_IN_GRAPH = ['AtmosphericPressure', 'RelativeHumidity', 'Temperature'];
 
 // Norm line colors
@@ -93,7 +97,7 @@ export const AirQualityGraph: React.FC<AirQualityGraphProps> = ({
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="observedAt" interval={0} tickFormatter={formatAxisLabel} />
               <YAxis domain={domain} tickFormatter={(value: number) => formatValue(value)} />
-              <Tooltip formatter={(value: number) => formatValue(value)} labelFormatter={formatTooltipLabel} />
+              <Tooltip formatter={formatTooltipValue} labelFormatter={formatTooltipLabelNode} />
               <Legend height={100} />
               {filteredData.map((pollutant) => (
                 <Bar
@@ -108,7 +112,12 @@ export const AirQualityGraph: React.FC<AirQualityGraphProps> = ({
                     y={30}
                     stroke={PM_NORM_COLOR}
                     strokeDasharray="5 5"
-                    label={{ value: 'PM Miljömål (30 µg/m³)', position: 'insideTopLeft', fill: PM_NORM_COLOR, fontSize: 12 }}
+                    label={{
+                      value: 'PM Miljömål (30 µg/m³)',
+                      position: 'insideTopLeft',
+                      fill: PM_NORM_COLOR,
+                      fontSize: 12,
+                    }}
                   />
                   <ReferenceLine
                     y={50}
@@ -154,7 +163,7 @@ export const AirQualityGraph: React.FC<AirQualityGraphProps> = ({
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis interval={0} dataKey="observedAt" tickFormatter={formatAxisLabel} />
               <YAxis domain={domain} tickFormatter={(value: number) => formatValue(value)} />
-              <Tooltip formatter={(value: number) => formatValue(value)} labelFormatter={formatTooltipLabel} />
+              <Tooltip formatter={formatTooltipValue} labelFormatter={formatTooltipLabelNode} />
               <Legend height={100} />
               {filteredData.map((pollutant) => (
                 <Line
@@ -170,7 +179,12 @@ export const AirQualityGraph: React.FC<AirQualityGraphProps> = ({
                     y={30}
                     stroke={PM_NORM_COLOR}
                     strokeDasharray="5 5"
-                    label={{ value: 'PM Miljömål (30 µg/m³)', position: 'insideTopLeft', fill: PM_NORM_COLOR, fontSize: 12 }}
+                    label={{
+                      value: 'PM Miljömål (30 µg/m³)',
+                      position: 'insideTopLeft',
+                      fill: PM_NORM_COLOR,
+                      fontSize: 12,
+                    }}
                   />
                   <ReferenceLine
                     y={50}

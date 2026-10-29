@@ -8,7 +8,7 @@ import LoaderFullScreen from '@components/loader/loader-fullscreen';
 import { appURL } from '@utils/app-url';
 import { useTranslation } from 'react-i18next';
 import { apiURL } from '@utils/api-url';
-import { capitalize } from 'underscore.string';
+import { capitalize } from '@utils/capitalize';
 
 // Turn on/off automatic login
 const autoLogin = false;
