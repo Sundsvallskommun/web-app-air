@@ -1,5 +1,6 @@
 import ApiService from '@/services/api.service';
 import { logger } from '@/utils/logger';
+import { APIS } from '@config';
 import dayjs from 'dayjs';
 import { Controller, Get, Param, QueryParam } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
@@ -89,6 +90,7 @@ function filterPollutantsByStation(data: any, station: string) {
 @Controller()
 export class AirController {
   private apiService = new ApiService();
+  private api = APIS.find(api => api.name === 'opendata');
 
   @Get('/airquality/:filter')
   @OpenAPI({ summary: 'get quality report of air in Sundsvall' })
@@ -131,7 +133,7 @@ export class AirController {
     }
 
     const encodedUrn = encodeURIComponent(STATION_URNS[station]);
-    const url = `/opendata/1.0/airqualities/${encodedUrn}${filterString}`;
+    const url = `/${this.api.name}/${this.api.version}/airqualities/${encodedUrn}${filterString}`;
     const res = await this.apiService.get({ url }).catch(e => {
       logger.error('Error when fetching air quality');
       throw e;

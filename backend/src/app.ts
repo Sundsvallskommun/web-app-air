@@ -32,6 +32,7 @@ import { routingControllersToSpec } from 'routing-controllers-openapi';
 import createFileStore from 'session-file-store';
 import swaggerUi from 'swagger-ui-express';
 import { additionalConverters } from '@utils/custom-validation-classes';
+import { livenessHandler } from '@/routes/liveness.route';
 
 const corsWhitelist = ORIGIN.split(',');
 
@@ -141,6 +142,7 @@ class App {
 
     this.initializeDataFolders();
 
+    this.initializeLivenessRoute();
     this.initializeMiddlewares();
     this.initializeRoutes(Controllers);
     if (this.swaggerEnabled) {
@@ -160,6 +162,10 @@ class App {
 
   public getServer() {
     return this.app;
+  }
+
+  private initializeLivenessRoute() {
+    this.app.get('/health', livenessHandler);
   }
 
   private initializeMiddlewares() {
